@@ -1,4 +1,5 @@
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import RFECV
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy
@@ -67,7 +68,7 @@ print("[RANDOM_FOREST] Balanced accuracy score:", score)
 plot_feature_importance(estimator = rdf, name = "RF_BD_NEARMISS", selected_features = selected_features, directory = directory)
 
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf, 0.0004, data_train, data_test, True, selected_features)
+imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf, 0.0004, True, selected_features, data_train, data_test)
 print("[RANDOM FOREST] Found ", len(feature_names_RFC), " important features")
 
 # _____________________________________________________________________SVM_RFE__________________________________________________________________________________#
@@ -95,15 +96,13 @@ score = model_predict(model = pipe, name = "SVM_RFE_BD_NEARMISS", test_data = da
 print("[SVM_RFE] Balanced accuracy score:", score)
 
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(pipe, 0.0004, data_train, data_test, True, selected_features)
+imp_features, imp_features_test, feature_names_RFC = select_features_from_model(pipe, 0.0004, True, selected_features, data_train, data_test)
 print("[SVM_RFE] Found ", len(feature_names_RFC), " important features")
 
 # plot feature importances for the best model
 plot_feature_importance(estimator = pipe, name = "SVM_RFE_BD_NEARMISS", selected_features = selected_features, directory = directory)
 
-# select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(pipe, 0.0004, data_train, data_test, True, selected_features)
-print("[SVM_RFE] Found ", len(feature_names_RFC), " important features")
+
 
 #get BEST features NAMES
 mask = pipe.named_steps['rfe'].support_

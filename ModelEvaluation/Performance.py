@@ -14,7 +14,7 @@ def model_predict(model, name, test_data, test_labels, directory):
     return score
 
 
-def select_features_from_model(model, threshold, train, test, prefit, selected_features):
+def select_features_from_model(model, threshold, prefit, selected_features, train = None, test = None):
     sfm = SelectFromModel(estimator=model, threshold=threshold, prefit=prefit)
     imp_features = sfm.transform(train)
     imp_features_test = sfm.transform(test)

@@ -59,5 +59,5 @@ print("[RANDOM_FOREST] Balanced accuracy score:", score)
 plot_feature_importance(estimator = rdf, name = "RF_NB", selected_features = selected_features, directory = directory)
 
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf, 0.0004, data_train, data_test, True, selected_features)
+imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf, 0.0004, True, selected_features, data_train, data_test)
 print("[RANDOM FOREST] Found ", len(feature_names_RFC), " important features")
