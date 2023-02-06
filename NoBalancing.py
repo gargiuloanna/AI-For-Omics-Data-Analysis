@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from joblib import dump, load
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import KFold, cross_validate, train_test_split, GridSearchCV
 from sklearn.cross_decomposition import PLSRegression
@@ -9,20 +8,12 @@ from sklearn.feature_selection import VarianceThreshold, RFECV
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 import pyChemometrics as pyC
-import os
-from functions import model_predict,select_features
-
-# define directory to save the models
-savedir = 'G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/Models/'
+from functions import model_predict, select_features, load_estimator, save_estimator, plot_feature_importance
 
 # Read Dataset
 print("[INFO] Reading dataset...")
-data = pd.read_csv(
-    "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/TCGA-PANCAN-HiSeq-801x20531/data.csv",
-    sep=',', header=0, index_col=0)
-labels = pd.read_csv(
-    "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/TCGA-PANCAN-HiSeq-801x20531/labels.csv",
-    sep=',', header=0, index_col=0)
+data = pd.read_csv("G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/TCGA-PANCAN-HiSeq-801x20531/data.csv", sep=',', header=0, index_col=0)
+labels = pd.read_csv("G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/TCGA-PANCAN-HiSeq-801x20531/labels.csv", sep=',', header=0, index_col=0)
 print("[INFO] Finished reading dataset")
 
 # Check Data
@@ -58,14 +49,20 @@ print("[INFO] Splitting dataset...")
 data_train, data_test, labels_train, labels_test = train_test_split(data_sc, labels_np, test_size=0.30, random_state=12345, stratify=labels_np)
 print("[INFO] Finished splitting dataset...")
 
-#Load Random Forest
-filename = os.path.join(savedir, "RF_NB.joblib")
-best_rf = load(filename)
 
-#evalute the best model on the test set
-score = model_predict(model = best_rf, test_data = data_test, test_labels = labels_test)
-print("Balanced Accuracy score:", score)
+#_______________________________________________________________Random Forest_______________________________________________________________________________________#
+# Load Random Forest
+best_rf = load_estimator("RF_NB.joblib")
 
-#select important features based on threshold
+# evalute the best model on the test set
+score = model_predict(model=best_rf, test_data=data_test, test_labels=labels_test)
+print("[RANDOM FOREST] Balanced Accuracy score:", score)
+
+# plot feature importances for the best model
+plot_feature_importance(best_rf, "RF_NB", selected_features)
+
+# select important features based on threshold
 imp_features, imp_features_test, feature_names_RFC = select_features(best_rf, 0.0004, data_train, data_test, True, selected_features)
-print(len(feature_names_RFC))
+print("[RANDOM FOREST] Found ", len(feature_names_RFC), " important features")
+
+#_____________________________________________________________________SVM_RFE__________________________________________________________________________________#

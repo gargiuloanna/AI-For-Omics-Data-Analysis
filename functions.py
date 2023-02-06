@@ -1,8 +1,14 @@
-from sklearn.metrics import balanced_accuracy_score, confusion_matrix
-from sklearn.feature_selection import SelectFromModel
+import os
+
+import matplotlib.pyplot as plt
 import scikitplot as skplt
 import scikitplot.metrics as skplt_m
-import matplotlib.pyplot as plt
+from joblib import dump, load
+from sklearn.feature_selection import SelectFromModel
+from sklearn.metrics import balanced_accuracy_score
+
+# define directory to save & load the models
+directory = 'G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/Models/'
 
 
 def model_predict(model, test_data, test_labels):
@@ -20,6 +26,18 @@ def select_features(model, threshold, train, test, prefit, selected_features):
     return imp_features, imp_features_test, feature_names
 
 
-def plot_feature_importance(estimator, selected_features):
+def plot_feature_importance(estimator, name, selected_features):
     skplt.estimators.plot_feature_importances(estimator, feature_names=selected_features, max_num_features=300, figsize=(100, 100))
+    plt.savefig(name + "_PLOT.png")
     plt.show()
+
+
+def save_estimator(estimator, name):
+    filename = os.path.join(directory, name)
+    dump(estimator, filename)
+
+
+def load_estimator(name):
+    filename = os.path.join(directory, name)
+    estimator = load(filename)
+    return estimator
