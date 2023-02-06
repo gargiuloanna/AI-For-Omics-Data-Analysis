@@ -4,8 +4,8 @@ import pandas as pd
 
 def read_dataset(directory):
     print("[INFO] Reading dataset...")
-    data = pd.read_csv(directory + "/data.csv", sep=',', header=0, index_col=0)
-    labels = pd.read_csv(directory + "/labels.csv", sep=',', header=0, index_col=0)
+    data = pd.read_csv(directory + "TCGA-PANCAN-HiSeq-801x20531/data.csv", sep=',', header=0, index_col=0)
+    labels = pd.read_csv(directory + "TCGA-PANCAN-HiSeq-801x20531/labels.csv", sep=',', header=0, index_col=0)
     print("[INFO] Finished reading dataset")
     return data, labels
 
