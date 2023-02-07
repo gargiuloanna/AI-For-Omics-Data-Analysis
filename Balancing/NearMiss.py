@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator
-from ModelEvaluation.Performance import model_predict, select_features_from_model, plot_feature_importance
+from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance
 from imblearn.under_sampling import NearMiss
 import os
 import matplotlib.pyplot as plt
@@ -50,7 +50,7 @@ param_grid = {
     'min_samples_leaf': [0.1, 0.23, 1, 10, 20],
     'max_features': ['sqrt', 'log2']
 }
-rdf_gridcv=GridSearchCV(rdf_model, param_grid=param_grid, cv=4, error_score='raise', n_jobs=-1, verbose=3, refit=True)
+rdf_gridcv=GridSearchCV(rdf_model, param_grid=param_grid,scoring='accuracy', cv=4, error_score='raise', n_jobs=-1, verbose=3, refit=True)
 rdf_gridcv.fit(data_train, labels_train)
 
 print(f"[RANDOM FOREST] Best random forest with params: {rdf_gridcv.best_params_} and score: {rdf_gridcv.best_score_:.3f}")
@@ -61,7 +61,7 @@ save_estimator(directory, rdf, "RF_BD_NEARMISS.joblib")
 print("[RANDOM FOREST] RF_BD model saved")
 
 #predict
-score = model_predict(model = rdf, name = "RF_BD_NEARMISS", test_data = data_test, test_labels = labels_test, directory=directory)
+score = unbalanced_model_predict(model=rdf, name="RF_BD_NEARMISS", test_data=data_test, test_labels=labels_test, directory=directory)
 print("[RANDOM_FOREST] Balanced accuracy score:", score)
 
 # plot feature importances for the best model
@@ -81,7 +81,7 @@ pipe = Pipeline([('rfe', rfe), ('svm_model', svm_model)])
 param_grid = {'svm_model__C': [0.00001, 0.0001, 0.001, 0.01, 0.1],
               'svm_model__loss': ['hinge', 'squared_hinge']}
 
-pipe_gridcv = GridSearchCV(pipe, param_grid=param_grid, cv=4, error_score='raise', n_jobs=-1, verbose=3, refit=True)
+pipe_gridcv = GridSearchCV(pipe, param_grid=param_grid, scoring='accuracy',cv=4, error_score='raise', n_jobs=-1, verbose=3, refit=True)
 pipe_gridcv.fit(data_train, labels_train)
 
 print(f"[SVM_RFE] Best SVM model with params: {pipe_gridcv.best_params_} and score: {pipe_gridcv.best_score_:.3f}")
@@ -92,7 +92,7 @@ save_estimator(directory, pipe, "SVM_RFE_BD_NEARMISS.joblib")
 print("[SVM_RFE] SVM_RFE model saved")
 
 #predict
-score = model_predict(model = pipe, name = "SVM_RFE_BD_NEARMISS", test_data = data_test, test_labels = labels_test, directory=directory)
+score = unbalanced_model_predict(model=pipe, name="SVM_RFE_BD_NEARMISS", test_data=data_test, test_labels=labels_test, directory=directory)
 print("[SVM_RFE] Balanced accuracy score:", score)
 
 # select important features based on threshold

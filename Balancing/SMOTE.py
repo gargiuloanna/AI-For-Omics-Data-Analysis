@@ -1,4 +1,5 @@
 from imblearn.over_sampling import SMOTE
+from sklearn.feature_selection import RFECV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
@@ -7,7 +8,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator
-from ModelEvaluation.Performance import model_predict, select_features_from_model, plot_feature_importance
+from ModelEvaluation.Performance import balanced_model_predict, select_features_from_model, plot_feature_importance
 
 directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/"
 #directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
@@ -47,7 +48,7 @@ param_grid = {
     'min_samples_leaf': [0.1, 0.23, 1, 10, 20],
     'max_features': ['sqrt', 'log2']
 }
-rdf_gridcv=GridSearchCV(rdf_model, param_grid=param_grid, cv=4, error_score='raise', n_jobs=-1, verbose=3, refit=True)
+rdf_gridcv=GridSearchCV(rdf_model, param_grid=param_grid, scoring='accuracy', cv=4, error_score='raise', n_jobs=-1, verbose=3, refit=True)
 rdf_gridcv.fit(data_train, labels_train)
 
 print(f"[RANDOM FOREST] Best random forest with params: {rdf_gridcv.best_params_} and score: {rdf_gridcv.best_score_:.3f}")
@@ -58,7 +59,7 @@ save_estimator(directory, rdf, "RF_BD_SMOTE.joblib")
 print("[RANDOM FOREST] RF_BD model saved")
 
 #predict
-score = model_predict(model = rdf, name = "RF_BD_SMOTE", test_data = data_test, test_labels = labels_test, directory=directory)
+score = balanced_model_predict(model=rdf, name="RF_BD_SMOTE", test_data=data_test, test_labels=labels_test, directory=directory)
 print("[RANDOM_FOREST] Balanced accuracy score:", score)
 
 # plot feature importances for the best model
@@ -78,7 +79,7 @@ pipe = Pipeline([('rfe', rfe), ('svm_model', svm_model)])
 param_grid = {'svm_model__C': [0.00001, 0.0001, 0.001, 0.01, 0.1],
               'svm_model__loss': ['hinge', 'squared_hinge']}
 
-pipe_gridcv = GridSearchCV(pipe, param_grid=param_grid, cv=4, error_score='raise', n_jobs=-1, verbose=3, refit=True)
+pipe_gridcv = GridSearchCV(pipe, param_grid=param_grid,scoring='accuracy', cv=4, error_score='raise', n_jobs=-1, verbose=3, refit=True)
 pipe_gridcv.fit(data_train, labels_train)
 
 print(f"[SVM_RFE] Best SVM model with params: {pipe_gridcv.best_params_} and score: {pipe_gridcv.best_score_:.3f}")
@@ -89,7 +90,7 @@ save_estimator(directory, pipe, "SVM_RFE_BD_SMOTE.joblib")
 print("[SVM_RFE] SVM_RFE model saved")
 
 #predict
-score = model_predict(model = pipe, name = "SVM_RFE_BD_SMOTE", test_data = data_test, test_labels = labels_test, directory=directory)
+score = balanced_model_predict(model=pipe, name="SVM_RFE_BD_SMOTE", test_data=data_test, test_labels=labels_test, directory=directory)
 print("[SVM_RFE] Balanced accuracy score:", score)
 
 # select important features based on threshold
