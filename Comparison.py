@@ -1,5 +1,7 @@
+#no balancing
+
 from ModelEvaluation.SaveLoad import load_estimator
-from ModelEvaluation.Performance import model_predict, select_features_from_model, plot_feature_importance
+from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance
 from sklearn.model_selection import train_test_split
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy
 from DatasetPrep.VariablePreSelection import feature_pre_selection
@@ -56,8 +58,8 @@ set_rfc = set(feature_names_RFC)
 
 print("number of features of SVM, " , len(set_svm))
 print("number of features of RFC, " , len(set_rfc))
-int = set_svm.intersection(set_rfc)
-print("length of intersection,  " , len(int))
-print("Common features: \n", int)
+intersection = set_svm.intersection(set_rfc)
+print("length of intersection,  ", len(intersection))
+print("Common features: \n", intersection)
 
 
