@@ -7,7 +7,7 @@ from DatasetPrep.VariablePreSelection import feature_pre_selection
 from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator
 from ModelEvaluation.Performance import model_predict, select_features_from_model, plot_feature_importance
-
+from sklearn.multiclass import OneVsRestClassifier
 directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/"
 #directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
 
@@ -41,7 +41,7 @@ param_grid = {
     'min_samples_leaf': [0.1, 0.23, 1, 10, 20],
     'max_features': ['sqrt', 'log2']
 }
-rdf_gridcv=GridSearchCV(rdf_model, param_grid=param_grid, cv=4, error_score='raise', n_jobs=-1, verbose=3, refit=True)
+rdf_gridcv=GridSearchCV(rdf_model, param_grid=param_grid, cv=4, scoring='balanced_accuracy', error_score='raise', n_jobs=-1, verbose=3, refit=True)
 rdf_gridcv.fit(data_train, labels_train)
 
 print(f"[RANDOM FOREST] Best random forest with params: {rdf_gridcv.best_params_} and score: {rdf_gridcv.best_score_:.3f}")
@@ -61,3 +61,12 @@ plot_feature_importance(estimator = rdf, name = "RF_NB", selected_features = sel
 # select important features based on threshold
 imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf, 0.0004, True, selected_features, data_train, data_test)
 print("[RANDOM FOREST] Found ", len(feature_names_RFC), " important features")
+
+# select best feature per class
+model_rdf = RandomForestClassifier(**rdf.get_params())
+ovr = OneVsRestClassifier(estimator=rdf_model, n_jobs=-1)
+m = ovr.fit(data_train, labels_train)
+
+
+
+
