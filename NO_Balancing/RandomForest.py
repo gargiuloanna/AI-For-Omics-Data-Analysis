@@ -42,7 +42,7 @@ param_grid = {
     'min_samples_leaf': [0.1, 0.23, 1, 10, 20],
     'max_features': ['sqrt', 'log2']
 }
-rdf_gridcv=GridSearchCV(rdf_model, param_grid=param_grid, cv=4, scoring='balanced_accuracy', error_score='raise', n_jobs=-1, verbose=3, refit=False)
+rdf_gridcv=GridSearchCV(rdf_model, param_grid=param_grid, cv=4, scoring='balanced_accuracy', error_score='raise', n_jobs=-1, verbose=3, refit=True)
 rdf_gridcv.fit(data_train, labels_train)
 
 print(f"[RANDOM FOREST] Best random forest with params: {rdf_gridcv.best_params_} and score: {rdf_gridcv.best_score_:.3f}")
@@ -52,24 +52,34 @@ ovr = OneVsRestClassifier(estimator=model_rdf, n_jobs=-1)
 results = ovr.fit(data_train, labels_train)
 
 #save model
-save_estimator(directory, model_rdf, "RF_NB.joblib")
+save_estimator(directory, results, "RF_NB.joblib")
 print("[RANDOM FOREST] RF_NB model saved")
 
 #predict
-score = unbalanced_model_predict(model=model_rdf, name="RF_NB", test_data=data_test, test_labels=labels_test, directory=directory)
+score = unbalanced_model_predict(model=results, name="RF_NB", test_data=data_test, test_labels=labels_test, directory=directory)
 print("[RANDOM_FOREST] Balanced accuracy score:", score)
 
-# plot feature importances for the best model
-plot_feature_importance(estimator = model_rdf, name = "RF_NB", selected_features = selected_features, directory = directory)
-
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf_gridcv, 0.0004, True, selected_features, data_train, data_test)
-print("[RANDOM FOREST] Found ", len(feature_names_RFC), " important features")
+imp_features = list()
+imp_features_test = list()
+feature_names_RFC = list()
+
+for i in range(0,5):
+    # plot feature importances for the best model
+    plot_feature_importance(estimator=results.estimators_[i], name="RF_NB", selected_features=selected_features, directory=directory)
+    #get important features
+    imp_features_single, imp_features_test_single, feature_names_RFC_single = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test)
+    print("[RANDOM FOREST", i, "] Found ", len(feature_names_RFC_single), " important features")
+    imp_features.extend(imp_features_single)
+    imp_features_test.extend(imp_features_test_single)
+    feature_names_RFC.extend(feature_names_RFC_single)
 
 #_________________________________Retraining with selected features________________________#
 
 retrained_rdf = RandomForestClassifier(**model_rdf.get_params())
 retrained_ovr = OneVsRestClassifier(estimator=retrained_rdf, n_jobs=-1)
+#da errore: ValueError: setting an array element with a sequence.
+# The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (2800,) + inhomogeneous part.
 retrained_results = ovr.fit(imp_features, labels_train)
 
 #save model
@@ -77,7 +87,7 @@ save_estimator(directory, retrained_rdf, "RF_NB_retrained.joblib")
 print("[RANDOM FOREST RETRAINED] RF_NB Re-trained model saved")
 
 #predict
-score = unbalanced_model_predict(model=model_rdf, name="RF_NB", test_data=imp_features_test, test_labels=labels_test, directory=directory)
+score = unbalanced_model_predict(model=model_rdf, name="RF_NB_retrained", test_data=imp_features_test, test_labels=labels_test, directory=directory)
 print("[RANDOM_FOREST RETRAINED] Balanced accuracy score:", score)
 
 

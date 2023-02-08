@@ -8,7 +8,7 @@ from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, datafram
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator
-from ModelEvaluation.Performance import model_predict, select_features_from_model, plot_feature_importance
+from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance
 
 directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/"
 #directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
@@ -51,7 +51,7 @@ save_estimator(directory, pipe, "SVM_RFE_BD.joblib")
 print("[SVM_RFE] SVM_RFE model saved")
 
 #predict
-score = model_predict(model = pipe, name = "SVM_RFE_BD", test_data = data_test, test_labels = labels_test, directory=directory)
+score = unbalanced_model_predict(model=pipe, name="SVM_RFE_BD", test_data=data_test, test_labels=labels_test, directory=directory)
 print("[SVM_RFE] Balanced accuracy score:", score)
 
 # select important features based on threshold
@@ -75,3 +75,6 @@ for i in range(5):
   print('Important Features for class ' + pipe.named_steps['svm_model'].classes_[i])
   print(feature_names_SVM_RFE[c[i].argmax()])
   print(feature_names_SVM_RFE[c[i].argmin()])
+
+# no need to retrain since the model is already trained on the best features.
+# A further step could be choosing less than 200 features

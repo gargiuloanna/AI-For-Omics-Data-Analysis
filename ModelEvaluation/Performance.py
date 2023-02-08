@@ -3,12 +3,19 @@ import matplotlib.pyplot as plt
 import scikitplot as skplt
 import scikitplot.metrics as skplt_m
 from sklearn.feature_selection import SelectFromModel
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import balanced_accuracy_score, accuracy_score
 
 
-def model_predict(model, name, test_data, test_labels, directory):
+def unbalanced_model_predict(model, name, test_data, test_labels, directory):
     lab_pred = model.predict(test_data)
     score = balanced_accuracy_score(test_labels, lab_pred)
+    skplt_m.plot_confusion_matrix(test_labels, lab_pred)
+    plt.savefig(directory + "/Plots/" + name + "_CONFUSION.png")
+    return score
+
+def balanced_model_predict(model, name, test_data, test_labels, directory):
+    lab_pred = model.predict(test_data)
+    score = accuracy_score(test_labels, lab_pred)
     skplt_m.plot_confusion_matrix(test_labels, lab_pred)
     plt.savefig(directory + "/Plots/" + name + "_CONFUSION.png")
     return score

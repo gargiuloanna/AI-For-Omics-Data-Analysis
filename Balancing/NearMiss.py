@@ -7,10 +7,10 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator
-from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance
+from ModelEvaluation.Performance import balanced_model_predict, select_features_from_model, plot_feature_importance
 from imblearn.under_sampling import NearMiss
-import os
-import matplotlib.pyplot as plt
+from sklearn.multiclass import OneVsRestClassifier
+
 
 directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/"
 #directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
@@ -55,20 +55,24 @@ rdf_gridcv.fit(data_train, labels_train)
 
 print(f"[RANDOM FOREST] Best random forest with params: {rdf_gridcv.best_params_} and score: {rdf_gridcv.best_score_:.3f}")
 
+# select best feature per class
+model_rdf = RandomForestClassifier(**rdf_gridcv.best_estimator_.get_params())
+ovr = OneVsRestClassifier(estimator=model_rdf, n_jobs=-1)
+results = ovr.fit(data_train, labels_train)
+
 #save model
-rdf = rdf_gridcv.best_estimator_
-save_estimator(directory, rdf, "RF_BD_NEARMISS.joblib")
+save_estimator(directory, model_rdf, "RF_BD_NEARMISS.joblib")
 print("[RANDOM FOREST] RF_BD model saved")
 
 #predict
-score = unbalanced_model_predict(model=rdf, name="RF_BD_NEARMISS", test_data=data_test, test_labels=labels_test, directory=directory)
+score = balanced_model_predict(model=model_rdf, name="RF_BD_NEARMISS", test_data=data_test, test_labels=labels_test, directory=directory)
 print("[RANDOM_FOREST] Balanced accuracy score:", score)
 
 # plot feature importances for the best model
-plot_feature_importance(estimator = rdf, name = "RF_BD_NEARMISS", selected_features = selected_features, directory = directory)
+plot_feature_importance(estimator = model_rdf, name = "RF_BD_NEARMISS", selected_features = selected_features, directory = directory)
 
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf, 0.0004, True, selected_features, data_train, data_test)
+imp_features, imp_features_test, feature_names_RFC = select_features_from_model(model_rdf, 0.0004, True, selected_features, data_train, data_test)
 print("[RANDOM FOREST] Found ", len(feature_names_RFC), " important features")
 
 # _____________________________________________________________________SVM_RFE__________________________________________________________________________________#
