@@ -79,13 +79,14 @@ data_np, selected_features = feature_pre_selection(data)
 # Scale the samples
 data_sc = scale(data_np)
 #PCA
-pca = PCA(n_components=2)
+pca = PCA(n_components=5)
 df = pca.fit_transform(data_np)
-#df_pd = pd.DataFrame(data = df, columns = ['principal component 1', 'principal component 2', 'principal component 3', 'principal component 4', 'principal component 5'])
+df_pd = pd.DataFrame(data = df, columns = ['principal component 1', 'principal component 2', 'principal component 3', 'principal component 4', 'principal component 5'])
 codes = {'BRCA':'red', 'COAD':'green', 'LUAD':'blue', 'PRAD':'violet', 'KIRC':'orange'}
-#pd.plotting.scatter_matrix(df_pd, c=labels.Class.map(codes), figsize = (30, 30));
+pd.plotting.scatter_matrix(df_pd, c=labels.Class.map(codes), figsize = (30, 30));
 #print(df_pd.head())
-#df_pd.drop(['principal component 2','principal component 4','principal component 5'], axis=1, inplace=True)
+df_pd.drop(['principal component 2','principal component 4','principal component 5'], axis=1, inplace=True)
+df = df_pd.to_numpy()
 #print(df_pd.head())
 
 
@@ -134,17 +135,17 @@ for n_clusters in range_n_clusters:
     ax1.set_xlim([-1, 1])
     # The (n_clusters+1)*10 is for inserting blank space between silhouette
     # plots of individual clusters, to demarcate them clearly.
-    ax1.set_ylim([0, len(data_sc) + (n_clusters + 1) * 10])
+    ax1.set_ylim([0, len(df) + (n_clusters + 1) * 10])
 
     # Initialize the clusterer with n_clusters value and a random generator
     # seed of 10 for reproducibility.
-    clusterer = KMeans(n_clusters=n_clusters, random_state=10)
-    cluster_labels = clusterer.fit_predict(data_sc)
+    clusterer = KMeans(n_clusters=n_clusters, random_state=12345, n_init = 100, algorithm= 'elkan')
+    cluster_labels = clusterer.fit_predict(df)
 
     # The silhouette_score gives the average value for all the samples.
     # This gives a perspective into the density and separation of the formed
     # clusters
-    silhouette_avg = silhouette_score(data_sc, cluster_labels)
+    silhouette_avg = silhouette_score(df, cluster_labels)
     print(
         "For n_clusters =",
         n_clusters,
@@ -153,7 +154,7 @@ for n_clusters in range_n_clusters:
     )
 
     # Compute the silhouette scores for each sample
-    sample_silhouette_values = silhouette_samples(data_sc, cluster_labels)
+    sample_silhouette_values = silhouette_samples(df, cluster_labels)
 
     y_lower = 10
     for i in range(n_clusters):
@@ -195,7 +196,7 @@ for n_clusters in range_n_clusters:
     # 2nd Plot showing the actual clusters formed
     colors = cm.nipy_spectral(cluster_labels.astype(float) / n_clusters)
     ax2.scatter(
-        data_sc[:, 0], data_sc[:, 1], marker=".", s=30, lw=0, alpha=0.7, c=colors, edgecolor="k"
+        df[:, 0], df[:, 1], marker=".", s=30, lw=0, alpha=0.7, c=colors, edgecolor="k"
     )
 
     # Labeling the clusters
