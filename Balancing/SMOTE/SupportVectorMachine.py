@@ -1,10 +1,10 @@
-#no balancing
-
+#balancing
+from imblearn.over_sampling import SMOTE
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_selection import RFECV
-from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy, remove_outliers
+from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, remove_outliers
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator
@@ -15,17 +15,19 @@ from ModelEvaluation.Performance import unbalanced_model_predict, select_feature
 data, labels = read_dataset()
 check_dataset(data, labels)
 data, labels = remove_outliers(data, labels)
-data_np, labels_np = dataframe_to_numpy(data, labels)
+smote = SMOTE(n_jobs=-1, random_state=12345)
+data_resampled_np, labels_resampled_np = smote.fit_resample(data, labels)
+print("Total number of samples after smote: ", len(data_resampled_np), ". Total number of labels ", len(labels_resampled_np))
 # Scale the samples
-data_sc = scale(data_np)
+data_sc = scale(data_resampled_np)
 # Feature Selection
-data_np, selected_features = feature_pre_selection(data, data_sc)
+data_np, selected_features = feature_pre_selection(data, data_resampled_np)
 
 #_____________________________________________________________________SPLIT DATASET_____________________________________________________________________#
 # Split data
 # make sure that the split is always the same,  and that the classes are somewhat balanced between splits
 print("[INFO] Splitting dataset...")
-data_train, data_test, labels_train, labels_test = train_test_split(data_np, labels_np, test_size=0.30, random_state=12345, stratify=labels_np)
+data_train, data_test, labels_train, labels_test = train_test_split(data_np, labels_resampled_np, test_size=0.30, random_state=12345, stratify=labels_resampled_np)
 print("[INFO] Finished splitting dataset...")
 
 #_____________________________________________________________________SVM_RFE__________________________________________________________________________________#

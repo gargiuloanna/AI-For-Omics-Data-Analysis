@@ -19,9 +19,10 @@ check_dataset(data, labels)
 data, labels = remove_outliers(data, labels)
 data_np, labels_np = dataframe_to_numpy(data, labels)
 # Scale the samples
-data_sc = scale(data_np)
+data_sc = scale(data_np, with_mean=False)
 # Feature Selection
-data_np, selected_features = feature_pre_selection(data, data_np)
+data_np, selected_features = feature_pre_selection(data, data_sc)
+
 
 #_____________________________________________________________________PCA_____________________________________________________________________#
 

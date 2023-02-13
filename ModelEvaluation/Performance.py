@@ -119,3 +119,10 @@ def plot_clustering(clusterer, cluster_labels, n_clusters, df):
     plt.show()
 
 
+def get_features_name(support, selected_features):
+    feature_names_SVM_RFE = []
+    for i in range(len(support)):
+        if support[i] == True:
+            feature_names_SVM_RFE.append(selected_features[i])
+    return feature_names_SVM_RFE
+
