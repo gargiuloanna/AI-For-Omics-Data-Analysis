@@ -27,7 +27,7 @@ data_train, data_test, labels_train, labels_test = train_test_split(data_sc, lab
 print("[INFO] Finished splitting dataset...")
 # _____________________________________________________________________LOAD SVM MODEL_____________________________________________________________________#
 # Load SVM_RFE
-svm = load_estimator("SVM_RFE_NB.joblib")
+svm = load_estimator("SVM_RFE_NEARMISS.joblib")
 
 # get BEST features NAMES
 feature_names_SVM_RFE = get_features_name(support=svm.named_steps['rfe'].support_, selected_features=selected_features)
@@ -42,7 +42,7 @@ for i in range(5):
 set_svm = set(feature_names_SVM_RFE)
 # _____________________________________________________________________LOAD RANDOM FOREST_____________________________________________________________________#
 # Load Random Forest
-rdf = load_estimator("RF_NB.joblib")
+rdf = load_estimator("RF_NEARMISS.joblib")
 
 # select best feature per class
 imp_features, imp_features_test, feature_names_RFC = select_features_from_model(model=rdf, threshold=0.0004,
@@ -59,7 +59,7 @@ print("Common features: \n", intersection)
 
 # _____________________________________________________________________LOAD RANDOM FOREST-OVR_____________________________________________________________________#
 # Load Random Forest
-rdf = load_estimator("RF_OVR_NB.joblib")
+rdf = load_estimator("RF_OVR_NEARMISS.joblib")
 # _____________________________________________________________________COMPARISON_____________________________________________________________________#
 for i in range(0, 5):
     imp_features, imp_features_test, feature_names_RFC = select_features_from_model(model=rdf.estimators_[i],
