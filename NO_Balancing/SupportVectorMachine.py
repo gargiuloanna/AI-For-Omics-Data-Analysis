@@ -1,5 +1,4 @@
 #no balancing
-
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split, GridSearchCV
@@ -8,7 +7,7 @@ from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, datafram
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator
-from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance, get_features_name
+from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, get_features_name
 
 #_____________________________________________________________________READ DATASET_____________________________________________________________________#
 # Read & Check dataset
@@ -51,9 +50,6 @@ print("[SVM_RFE] SVM_RFE model saved")
 #predict
 score = unbalanced_model_predict(model=pipe, name="SVM_RFE_NB", test_data=data_test, test_labels=labels_test)
 print("[SVM_RFE] Balanced accuracy score:", score)
-
-# plot feature importances for the best model
-plot_feature_importance(estimator=pipe.named_steps['svm_model'], name="SVM_RFE_NB", selected_features=selected_features)
 
 # select important features based on threshold
 imp_features, imp_features_test, feature_names_SVM = select_features_from_model(pipe.named_steps['svm_model'], 0.0004, True, selected_features, data_train, data_test)
