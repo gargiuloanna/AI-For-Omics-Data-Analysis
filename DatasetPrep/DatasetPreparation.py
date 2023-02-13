@@ -4,6 +4,7 @@ from sklearn.neighbors import LocalOutlierFactor
 
 directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project"
 
+
 def read_dataset():
     print("[INFO] Reading dataset...")
     data = pd.read_csv(directory + "/TCGA-PANCAN-HiSeq-801x20531/data.csv", sep=',', header=0, index_col=0)
@@ -35,7 +36,8 @@ def get_dataset():
         print("Check for NaN values returned True")
         return None, None
 
+
 def remove_outliers(data, labels):
-    local = LocalOutlierFactor(n_neighbors= 15, n_jobs = -1)
+    local = LocalOutlierFactor(n_neighbors=15, n_jobs=-1)
     outliers = local.fit_predict(data)
     return data[outliers == 1], labels[outliers == 1]

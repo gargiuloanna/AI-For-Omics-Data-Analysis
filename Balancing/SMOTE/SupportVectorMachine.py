@@ -1,17 +1,19 @@
-#balancing
-from imblearn.over_sampling import SMOTE
+# balancing
 import numpy as np
-from sklearn.svm import LinearSVC
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split, GridSearchCV
+from imblearn.over_sampling import SMOTE
 from sklearn.feature_selection import RFECV
-from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, remove_outliers
-from DatasetPrep.VariablePreSelection import feature_pre_selection
-from DatasetPrep.Scaling import scale
-from ModelEvaluation.SaveLoad import save_estimator
-from ModelEvaluation.Performance import balanced_model_predict, select_features_from_model, get_features_name
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.neighbors import NearestNeighbors
-#_____________________________________________________________________READ DATASET_____________________________________________________________________#
+from sklearn.pipeline import Pipeline
+from sklearn.svm import LinearSVC
+
+from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, remove_outliers
+from DatasetPrep.Scaling import scale
+from DatasetPrep.VariablePreSelection import feature_pre_selection
+from ModelEvaluation.Performance import balanced_model_predict, get_features_name
+from ModelEvaluation.SaveLoad import save_estimator
+
+# _____________________________________________________________________READ DATASET_____________________________________________________________________#
 # Read & Check dataset
 data, labels = read_dataset()
 check_dataset(data, labels)
@@ -24,15 +26,15 @@ data_sc = scale(data_resampled_np)
 # Feature Selection
 data_np, selected_features = feature_pre_selection(data, data_sc)
 
-#_____________________________________________________________________SPLIT DATASET_____________________________________________________________________#
+# _____________________________________________________________________SPLIT DATASET_____________________________________________________________________#
 # Split data
 # make sure that the split is always the same,  and that the classes are somewhat balanced between splits
 print("[INFO] Splitting dataset...")
 data_train, data_test, labels_train, labels_test = train_test_split(data_np, np.ravel(labels_resampled_np), test_size=0.30, random_state=12345, stratify=labels_resampled_np)
 print("[INFO] Finished splitting dataset...")
 
-#_____________________________________________________________________SVM_RFE__________________________________________________________________________________#
-#grid search with RFE
+# _____________________________________________________________________SVM_RFE__________________________________________________________________________________#
+# grid search with RFE
 print("[SVM_RFE WITH SMOTE] Searching best params with GridSearchCV")
 
 svm_model = LinearSVC(max_iter=10000, random_state=12345)
@@ -46,22 +48,22 @@ pipe_gridcv.fit(data_train, labels_train)
 
 print(f"[SVM_RFE WITH SMOTE] Best SVM model with params: {pipe_gridcv.best_params_} and score: {pipe_gridcv.best_score_:.3f}")
 
-#save model
+# save model
 pipe = pipe_gridcv.best_estimator_
 save_estimator(pipe, "SVM_RFE_SMOTE.joblib")
 print("[SVM_RFE WITH SMOTE] SVM_RFE_SMOTE model saved")
 
-#predict
+# predict
 score = balanced_model_predict(model=pipe, name="SVM_RFE_SMOTE", test_data=data_test, test_labels=labels_test)
 print("[SVM_RFE WITH SMOTE] Balanced accuracy score:", score)
 
-#get BEST features NAMES
+# get BEST features NAMES
 feature_names_SVM_RFE = get_features_name(support=pipe.named_steps['rfe'].support_, selected_features=selected_features)
 
-#get important features per class
+# get important features per class
 c = pipe.named_steps['svm_model'].coef_
 print("[SVM_RFE WITH SMOTE]")
 for i in range(5):
-  print('Important Features for class ' + pipe.named_steps['svm_model'].classes_[i])
-  print(feature_names_SVM_RFE[c[i].argmax()])
-  print(feature_names_SVM_RFE[c[i].argmin()])
+    print('Important Features for class ' + pipe.named_steps['svm_model'].classes_[i])
+    print(feature_names_SVM_RFE[c[i].argmax()])
+    print(feature_names_SVM_RFE[c[i].argmin()])

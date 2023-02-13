@@ -1,12 +1,13 @@
 from imblearn.under_sampling import NearMiss
-from ModelEvaluation.SaveLoad import load_estimator
-from ModelEvaluation.Performance import  select_features_from_model, get_features_name
 from sklearn.model_selection import train_test_split
-from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, remove_outliers
-from DatasetPrep.VariablePreSelection import feature_pre_selection
-from DatasetPrep.Scaling import scale
 
-#_____________________________________________________________________READ DATASET_____________________________________________________________________#
+from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, remove_outliers
+from DatasetPrep.Scaling import scale
+from DatasetPrep.VariablePreSelection import feature_pre_selection
+from ModelEvaluation.Performance import select_features_from_model, get_features_name
+from ModelEvaluation.SaveLoad import load_estimator
+
+# _____________________________________________________________________READ DATASET_____________________________________________________________________#
 # Read & Check dataset
 data, labels = read_dataset()
 check_dataset(data, labels)
@@ -73,4 +74,3 @@ for i in range(0, 5):
     print('Important Features for class ' + rdf.classes_[i])
     print("length of intersection,  ", len(intersection))
     print("Common features: \n", intersection)
-

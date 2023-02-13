@@ -1,7 +1,8 @@
 import os
-import numpy as np
+
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
+import numpy as np
 import scikitplot as skplt
 import scikitplot.metrics as skplt_m
 from sklearn.feature_selection import SelectFromModel
@@ -9,12 +10,14 @@ from sklearn.metrics import balanced_accuracy_score, accuracy_score, silhouette_
 
 directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project"
 
+
 def unbalanced_model_predict(model, name, test_data, test_labels):
     lab_pred = model.predict(test_data)
     score = balanced_accuracy_score(test_labels, lab_pred)
     skplt_m.plot_confusion_matrix(test_labels, lab_pred)
     plt.savefig(directory + "/Plots/" + name + "_CONFUSION.png")
     return score
+
 
 def balanced_model_predict(model, name, test_data, test_labels):
     lab_pred = model.predict(test_data)
@@ -24,7 +27,7 @@ def balanced_model_predict(model, name, test_data, test_labels):
     return score
 
 
-def select_features_from_model(model, threshold, prefit, selected_features, train = None, test = None):
+def select_features_from_model(model, threshold, prefit, selected_features, train=None, test=None):
     sfm = SelectFromModel(estimator=model, threshold=threshold, prefit=prefit)
     imp_features = sfm.transform(train)
     imp_features_test = sfm.transform(test)
@@ -37,6 +40,16 @@ def plot_feature_importance(estimator, name, selected_features):
     filename = os.path.join(directory + "/Plots/", name + "_PLOT.png")
     plt.savefig(filename)
     plt.show()
+
+
+def get_feature_importance(estimator, selected_features):
+    importances = estimator.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    max_num_features = min(300, len(importances))
+    print(importances[indices][:max_num_features])
+    feature_names = np.array(selected_features)[indices]
+    print(feature_names[:max_num_features])
+
 
 def plot_clustering(clusterer, cluster_labels, n_clusters, df):
     fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -125,4 +138,3 @@ def get_features_name(support, selected_features):
         if support[i] == True:
             feature_names_SVM_RFE.append(selected_features[i])
     return feature_names_SVM_RFE
-
