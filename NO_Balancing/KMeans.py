@@ -36,4 +36,4 @@ cluster_labels = clusterer.fit_predict(df)
 plot_clustering(clusterer=clusterer, cluster_labels=cluster_labels, n_clusters=5, df=df)
 
 #save_estimator
-save_estimator(directory, clusterer, "KMeans.joblib")
+save_estimator(clusterer, "KMeans.joblib")

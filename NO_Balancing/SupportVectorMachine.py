@@ -46,7 +46,7 @@ print(f"[SVM_RFE] Best SVM model with params: {pipe_gridcv.best_params_} and sco
 
 #save model
 pipe = pipe_gridcv.best_estimator_
-save_estimator(directory, pipe, "SVM_RFE_BD.joblib")
+save_estimator(pipe, "SVM_RFE_BD.joblib")
 print("[SVM_RFE] SVM_RFE model saved")
 
 #predict

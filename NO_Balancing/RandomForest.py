@@ -58,7 +58,7 @@ score = unbalanced_model_predict(model=results, name="RF_NB", test_data=data_tes
 print("[RANDOM_FOREST] Balanced accuracy score:", score)
 '''
 #save model
-results = load_estimator(directory, "RF_NB.joblib")
+results = load_estimator("RF_NB.joblib")
 print("[RANDOM FOREST] RF_NB model loaded")
 
 imp_features_train = list()

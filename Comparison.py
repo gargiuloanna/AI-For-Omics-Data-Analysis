@@ -27,7 +27,7 @@ data_train, data_test, labels_train, labels_test = train_test_split(data_sc, lab
 print("[INFO] Finished splitting dataset...")
 
 #Load SVM_RFE
-svm = load_estimator(directory, "SVM_RFE_NB.joblib")
+svm = load_estimator("SVM_RFE_NB.joblib")
 #get BEST features NAMES
 mask = svm.named_steps['rfe'].support_
 feature_names_SVM_RFE = []
@@ -45,7 +45,7 @@ for i in range(5):
 set_svm = set(feature_names_SVM_RFE)
 
 #Load Random Forest
-rdf = load_estimator(directory, "RF_NB.joblib")
+rdf = load_estimator("RF_NB.joblib")
 # select best feature per class
 
 for i in range(0, 5):

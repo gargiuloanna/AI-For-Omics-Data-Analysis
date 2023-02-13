@@ -58,7 +58,7 @@ ovr = OneVsRestClassifier(estimator=model_rdf, n_jobs=-1)
 results = ovr.fit(data_train, labels_train)
 
 #save model
-save_estimator(directory, model_rdf, "RF_BD_NEARMISS.joblib")
+save_estimator(model_rdf, "RF_BD_NEARMISS.joblib")
 print("[RANDOM FOREST] RF_BD model saved")
 
 #predict
@@ -89,7 +89,7 @@ print(f"[SVM_RFE] Best SVM model with params: {pipe_gridcv.best_params_} and sco
 
 #save model
 pipe = pipe_gridcv.best_estimator_
-save_estimator(directory, pipe, "SVM_RFE_BD_NEARMISS.joblib")
+save_estimator(pipe, "SVM_RFE_BD_NEARMISS.joblib")
 print("[SVM_RFE] SVM_RFE model saved")
 
 #predict

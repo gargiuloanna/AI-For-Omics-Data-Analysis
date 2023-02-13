@@ -55,7 +55,7 @@ print(f"[RANDOM FOREST] Best random forest with params: {rdf_gridcv.best_params_
 
 #save model
 rdf = rdf_gridcv.best_estimator_
-save_estimator(directory, rdf, "RF_BD_SMOTE.joblib")
+save_estimator(rdf, "RF_BD_SMOTE.joblib")
 print("[RANDOM FOREST] RF_BD model saved")
 
 #predict
@@ -86,7 +86,7 @@ print(f"[SVM_RFE] Best SVM model with params: {pipe_gridcv.best_params_} and sco
 
 #save model
 pipe = pipe_gridcv.best_estimator_
-save_estimator(directory, pipe, "SVM_RFE_BD_SMOTE.joblib")
+save_estimator(pipe, "SVM_RFE_BD_SMOTE.joblib")
 print("[SVM_RFE] SVM_RFE model saved")
 
 #predict
