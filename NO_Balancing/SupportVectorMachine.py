@@ -32,8 +32,8 @@ print("[INFO] Finished splitting dataset...")
 #grid search with RFE
 print("[SVM_RFE] Searching best params with GridSearchCV")
 
-svm_model = LinearSVC(max_iter=10000, random_state=12345)
-rfe = RFECV(svm_model, step=10000, verbose=2)
+svm_model = LinearSVC(max_iter=5000, random_state=12345)
+rfe = RFECV(svm_model, step=5000, verbose=2)
 pipe = Pipeline([('rfe', rfe), ('svm_model', svm_model)])
 param_grid = {'svm_model__C': [0.00001, 0.0001, 0.001, 0.01, 0.1],
               'svm_model__loss': ['hinge', 'squared_hinge']}
@@ -53,10 +53,10 @@ score = unbalanced_model_predict(model=pipe, name="SVM_RFE_NB", test_data=data_t
 print("[SVM_RFE] Balanced accuracy score:", score)
 
 # plot feature importances for the best model
-plot_feature_importance(estimator=pipe, name="SVM_RFE_NB", selected_features=selected_features)
+plot_feature_importance(estimator=pipe.named_steps['svm_model'], name="SVM_RFE_NB", selected_features=selected_features)
 
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_SVM = select_features_from_model(pipe, 0.0004, True, selected_features, data_train, data_test)
+imp_features, imp_features_test, feature_names_SVM = select_features_from_model(pipe.named_steps['svm_model'], 0.0004, True, selected_features, data_train, data_test)
 print("[SVM_RFE] Found ", len(feature_names_SVM), " important features")
 
 #get BEST features NAMES
