@@ -55,10 +55,6 @@ print("[SVM_RFE WITH NEARMISS] SVM_RFE_NEARMISS model saved")
 score = balanced_model_predict(model=pipe, name="SVM_RFE_NEARMISS", test_data=data_test, test_labels=labels_test)
 print("[SVM_RFE WITH NEARMISS] Balanced accuracy score:", score)
 
-# select important features based on threshold
-imp_features, imp_features_test, feature_names_SVM = select_features_from_model(pipe.named_steps['svm_model'], 0.0004, True, selected_features, data_train, data_test)
-print("[SVM_RFE WITH NEARMISS] Found ", len(feature_names_SVM), " important features")
-
 #get BEST features NAMES
 feature_names_SVM_RFE = get_features_name(support=pipe.named_steps['rfe'].support_, selected_features=selected_features)
 
