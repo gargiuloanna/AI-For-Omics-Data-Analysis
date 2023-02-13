@@ -1,16 +1,14 @@
 #no balancing
-import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy, remove_outliers
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from DatasetPrep.Scaling import scale
-from ModelEvaluation.SaveLoad import save_estimator, load_estimator
+from ModelEvaluation.SaveLoad import save_estimator
 from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance
 from sklearn.multiclass import OneVsRestClassifier
 
 #_____________________________________________________________________READ DATASET_____________________________________________________________________#
-
 # Read & Check dataset
 data, labels = read_dataset()
 check_dataset(data, labels)
@@ -22,8 +20,6 @@ data_sc = scale(data_np)
 data_np, selected_features = feature_pre_selection(data, data_np)
 
 #_____________________________________________________________________SPLIT DATASET_____________________________________________________________________#
-
-
 # Split data
 # make sure that the split is always the same,  and that the classes are somewhat balanced between splits
 print("[INFO] Splitting dataset...")
