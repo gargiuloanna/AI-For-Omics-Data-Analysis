@@ -1,5 +1,6 @@
 import os
 
+import operator
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,12 +44,15 @@ def plot_feature_importance(estimator, name, selected_features):
 
 
 def get_feature_importance(estimator, selected_features):
+    important_features = {}
     importances = estimator.feature_importances_
-    indices = np.argsort(importances)[::-1]
     max_num_features = min(300, len(importances))
-    print(importances[indices][:max_num_features])
+    indices = np.argsort(importances)[::-1]
+    importances = np.sort(importances)[::-1]
     feature_names = np.array(selected_features)[indices]
-    print(feature_names[:max_num_features])
+    for index in indices:
+        important_features[feature_names[index]] = importances[index]
+    return sorted(important_features.items(), key=operator.itemgetter(1), reverse=True)
 
 
 def plot_clustering(clusterer, cluster_labels, n_clusters, df):
