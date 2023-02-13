@@ -53,12 +53,12 @@ print("[SVM_RFE] SVM_RFE model saved")
 score = unbalanced_model_predict(model=pipe, name="SVM_RFE_NB", test_data=data_test, test_labels=labels_test)
 print("[SVM_RFE] Balanced accuracy score:", score)
 
-# select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(pipe, 0.0004, True, selected_features, data_train, data_test)
-print("[SVM_RFE] Found ", len(feature_names_RFC), " important features")
-
 # plot feature importances for the best model
 plot_feature_importance(estimator=pipe, name="SVM_RFE_NB", selected_features=selected_features)
+
+# select important features based on threshold
+imp_features, imp_features_test, feature_names_SVM = select_features_from_model(pipe, 0.0004, True, selected_features, data_train, data_test)
+print("[SVM_RFE] Found ", len(feature_names_SVM), " important features")
 
 #get BEST features NAMES
 mask = pipe.named_steps['rfe'].support_

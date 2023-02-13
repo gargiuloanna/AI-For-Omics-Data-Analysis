@@ -2,24 +2,27 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
-from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy
+from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy, remove_outliers
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator, load_estimator
 from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance
 from sklearn.multiclass import OneVsRestClassifier
 
+#_____________________________________________________________________READ DATASET_____________________________________________________________________#
 
 # Read & Check dataset
 data, labels = read_dataset()
 check_dataset(data, labels)
+data, labels = remove_outliers(data, labels)
 data_np, labels_np = dataframe_to_numpy(data, labels)
-
-# Feature Selection
-data_np, selected_features = feature_pre_selection(data)
-
 # Scale the samples
 data_sc = scale(data_np)
+# Feature Selection
+data_np, selected_features = feature_pre_selection(data, data_np)
+
+#_____________________________________________________________________SPLIT DATASET_____________________________________________________________________#
+
 
 # Split data
 # make sure that the split is always the same,  and that the classes are somewhat balanced between splits
@@ -30,7 +33,6 @@ print("[INFO] Finished splitting dataset...")
 # _____________________________________________________________________RANDOM FOREST__________________________________________________________________________________#
 #Grid Search
 print("[RANDOM FOREST] Searching best params with GridSearchCV")
-'''
 rdf_model=RandomForestClassifier(random_state=12345)
 param_grid = {
     'n_estimators': [30, 40, 50, 60, 100],
@@ -44,59 +46,50 @@ rdf_gridcv=GridSearchCV(rdf_model, param_grid=param_grid, cv=4, scoring='balance
 rdf_gridcv.fit(data_train, labels_train)
 
 print(f"[RANDOM FOREST] Best random forest with params: {rdf_gridcv.best_params_} and score: {rdf_gridcv.best_score_:.3f}")
+#save model
+save_estimator(rdf_gridcv.best_estimator_, "RF_NB.joblib")
+print("[RANDOM FOREST] RF_NB model saved")
+
+#predict
+score = unbalanced_model_predict(model=rdf_gridcv.best_estimator_, name="RF_NB", test_data=data_test, test_labels=labels_test)
+print("[RANDOM_FOREST] Balanced accuracy score:", score)
+
+# plot feature importances for the best model
+plot_feature_importance(estimator=rdf_gridcv.best_estimator_, name="RF_NB", selected_features=selected_features)
+
+# select important features based on threshold
+imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf_gridcv.best_estimator_, 0.0004, True, selected_features, data_train, data_test)
+print("[RFC] Found ", len(feature_names_RFC), " important features: ")
+print(feature_names_RFC)
+
+#_____________________________________________________________________RETRAIN RANDOMFOREST______________________________________________________________________________#
+retrained_rdf = RandomForestClassifier(**rdf_gridcv.best_estimator_.get_params())
+retrained_results = retrained_rdf.fit(imp_features, labels_train)
+
+#save model
+save_estimator(retrained_rdf, "RF_NB_retrained.joblib")
+print("[RANDOM FOREST RETRAINED] RF_NB Re-trained model saved")
+
+#predict
+score = unbalanced_model_predict(model=retrained_results, name="RF_NB_retrained", test_data=imp_features_test, test_labels=labels_test)
+print("[RANDOM_FOREST RETRAINED] Balanced accuracy score:", score)
+
+
+#_____________________________________________________________________ONEVSREST-RANDOMFOREST___________________________________________
 # select best feature per class
 model_rdf = RandomForestClassifier(**rdf_gridcv.best_estimator_.get_params())
 ovr = OneVsRestClassifier(estimator=model_rdf, n_jobs=-1)
 results = ovr.fit(data_train, labels_train)
 
 #save model
-save_estimator(directory, results, "RF_NB.joblib")
-print("[RANDOM FOREST] RF_NB model saved")
+save_estimator(results, "RF_OVR_NB.joblib")
+print("[RANDOM FOREST] RF_OVR_NB model saved")
 
-#predict
-score = unbalanced_model_predict(model=results, name="RF_NB", test_data=data_test, test_labels=labels_test, directory=directory)
-print("[RANDOM_FOREST] Balanced accuracy score:", score)
-'''
-#save model
-results = load_estimator("RF_NB.joblib")
-print("[RANDOM FOREST] RF_NB model loaded")
-
-imp_features_train = list()
-imp_features_test= list()
-feature_names_RFC = list()
 # select important features based on threshold
-for i in range(0,5):
+for i in range(0, 5):
     # plot feature importances for the best model
-    #plot_feature_importance(estimator=results.estimators_[i], name="RF_NB", selected_features=selected_features, directory=directory)
+    plot_feature_importance(estimator=results.estimators_[i], name="RF_OVR_NB", selected_features=selected_features)
     #get important features
     imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test)
     print("[RANDOM FOREST", i, "] Found ", len(feature_names_RFC_sin), " important features")
-    imp_features_train.append(imp_features_train_sin)
-    imp_features_test.append(imp_features_test_sin)
-    feature_names_RFC.append(feature_names_RFC_sin)
-
-print(pd.DataFrame(feature_names_RFC).head())
-
-
-
-#_________________________________Retraining with selected features________________________#
-
-
-
-'''
-retrained_rdf = RandomForestClassifier(**results.estimators_[0].get_params())
-retrained_ovr = OneVsRestClassifier(estimator=retrained_rdf, n_jobs=-1)
-#da errore: ValueError: setting an array element with a sequence.
-# The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (2800,) + inhomogeneous part.
-retrained_results = retrained_ovr.fit(imp_features_train, labels_train)
-
-#save model
-save_estimator(directory, retrained_rdf, "RF_NB_retrained.joblib")
-print("[RANDOM FOREST RETRAINED] RF_NB Re-trained model saved")
-
-#predict
-score = unbalanced_model_predict(model=retrained_results, name="RF_NB_retrained", test_data=imp_features_test, test_labels=labels_test, directory=directory)
-print("[RANDOM_FOREST RETRAINED] Balanced accuracy score:", score)
-'''
-
-
+    print(feature_names_RFC_sin)
