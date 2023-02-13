@@ -84,7 +84,7 @@ print("[RANDOM FOREST] RF_OVR_NB model saved")
 # select important features based on threshold
 for i in range(0, 5):
     # plot feature importances for the best model
-    plot_feature_importance(estimator=results.estimators_[i], name="RF_OVR_NB", selected_features=selected_features)
+    plot_feature_importance(estimator=results.estimators_[i], name="RF_OVR_NB" + str(i), selected_features=selected_features)
     #get important features
     imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test)
     print("[RANDOM FOREST", i, "] Found ", len(feature_names_RFC_sin), " important features")
