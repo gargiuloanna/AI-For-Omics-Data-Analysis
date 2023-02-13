@@ -10,9 +10,6 @@ from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator
 from ModelEvaluation.Performance import balanced_model_predict, select_features_from_model, plot_feature_importance
 
-directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/"
-#directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
-
 # Read & Check dataset
 data, labels = read_dataset()
 check_dataset(data, labels)

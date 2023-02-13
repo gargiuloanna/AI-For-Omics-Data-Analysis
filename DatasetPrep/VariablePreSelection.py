@@ -1,9 +1,7 @@
 from sklearn.feature_selection import VarianceThreshold
 
 
-def feature_pre_selection(data, data_np = None, threshold=0):
-    if data_np == None:
-        data_np = data
+def feature_pre_selection(data, data_np, threshold=0):
     vt = VarianceThreshold()
     data_np = vt.fit_transform(data_np)
     print("[INFO] Removed ", data.shape[1] - data_np.shape[1], " features with variance = ", threshold, " along samples")

@@ -46,11 +46,11 @@ print(f"[SVM_RFE] Best SVM model with params: {pipe_gridcv.best_params_} and sco
 
 #save model
 pipe = pipe_gridcv.best_estimator_
-save_estimator(pipe, "SVM_RFE_BD.joblib")
+save_estimator(pipe, "SVM_RFE_NB.joblib")
 print("[SVM_RFE] SVM_RFE model saved")
 
 #predict
-score = unbalanced_model_predict(model=pipe, name="SVM_RFE_BD", test_data=data_test, test_labels=labels_test)
+score = unbalanced_model_predict(model=pipe, name="SVM_RFE_NB", test_data=data_test, test_labels=labels_test)
 print("[SVM_RFE] Balanced accuracy score:", score)
 
 # select important features based on threshold
@@ -58,7 +58,7 @@ imp_features, imp_features_test, feature_names_RFC = select_features_from_model(
 print("[SVM_RFE] Found ", len(feature_names_RFC), " important features")
 
 # plot feature importances for the best model
-plot_feature_importance(estimator=pipe, name="SVM_RFE_BD", selected_features=selected_features)
+plot_feature_importance(estimator=pipe, name="SVM_RFE_NB", selected_features=selected_features)
 
 #get BEST features NAMES
 mask = pipe.named_steps['rfe'].support_

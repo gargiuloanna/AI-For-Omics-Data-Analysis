@@ -46,6 +46,7 @@ def plot_clustering(clusterer, cluster_labels, n_clusters, df):
     # plots of individual clusters, to demarcate them clearly.
     ax1.set_ylim([0, len(df) + (n_clusters + 1) * 10])
     silhouette_avg = silhouette_score(df, cluster_labels)
+    print("Average silhouette score", silhouette_avg)
     # Compute the silhouette scores for each sample
     sample_silhouette_values = silhouette_samples(df, cluster_labels)
     y_lower = 10
@@ -106,15 +107,15 @@ def plot_clustering(clusterer, cluster_labels, n_clusters, df):
         ax2.scatter(c[0], c[1], marker="$%d$" % i, alpha=1, s=50, edgecolor="k")
 
     ax2.set_title("The visualization of the clustered data.")
-    ax2.set_xlabel("Feature space for the 1st feature")
-    ax2.set_ylabel("Feature space for the 2nd feature")
+    ax2.set_xlabel("Feature space for the 1st PC")
+    ax2.set_ylabel("Feature space for the 2nd PC")
 
     plt.suptitle(
         "Silhouette analysis for KMeans clustering on sample data with n_clusters = 5",
         fontsize=14,
         fontweight="bold",
     )
-
-    plt.show()
     plt.savefig(directory + "/Plots/KMeans.png")
+    plt.show()
+
 
