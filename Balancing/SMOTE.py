@@ -14,7 +14,7 @@ directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Pro
 #directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
 
 # Read & Check dataset
-data, labels = read_dataset(directory)
+data, labels = read_dataset()
 check_dataset(data, labels)
 data_np, labels_np = dataframe_to_numpy(data, labels)
 
@@ -59,11 +59,11 @@ save_estimator(directory, rdf, "RF_BD_SMOTE.joblib")
 print("[RANDOM FOREST] RF_BD model saved")
 
 #predict
-score = balanced_model_predict(model=rdf, name="RF_BD_SMOTE", test_data=data_test, test_labels=labels_test, directory=directory)
+score = balanced_model_predict(model=rdf, name="RF_BD_SMOTE", test_data=data_test, test_labels=labels_test)
 print("[RANDOM_FOREST] Balanced accuracy score:", score)
 
 # plot feature importances for the best model
-plot_feature_importance(estimator = rdf, name = "RF_BD_SMOTE", selected_features = selected_features, directory = directory)
+plot_feature_importance(estimator=rdf, name="RF_BD_SMOTE", selected_features=selected_features)
 
 # select important features based on threshold
 imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf, 0.0004, True, selected_features, data_train, data_test)
@@ -90,7 +90,7 @@ save_estimator(directory, pipe, "SVM_RFE_BD_SMOTE.joblib")
 print("[SVM_RFE] SVM_RFE model saved")
 
 #predict
-score = balanced_model_predict(model=pipe, name="SVM_RFE_BD_SMOTE", test_data=data_test, test_labels=labels_test, directory=directory)
+score = balanced_model_predict(model=pipe, name="SVM_RFE_BD_SMOTE", test_data=data_test, test_labels=labels_test)
 print("[SVM_RFE] Balanced accuracy score:", score)
 
 # select important features based on threshold
@@ -98,7 +98,7 @@ imp_features, imp_features_test, feature_names_RFC = select_features_from_model(
 print("[SVM_RFE] Found ", len(feature_names_RFC), " important features")
 
 # plot feature importances for the best model
-plot_feature_importance(estimator = pipe, name = "SVM_RFE_BD_SMOTE", selected_features = selected_features, directory = directory)
+plot_feature_importance(estimator=pipe, name="SVM_RFE_BD_SMOTE", selected_features=selected_features)
 
 #get BEST features NAMES
 mask = pipe.named_steps['rfe'].support_

@@ -12,11 +12,8 @@ from imblearn.under_sampling import NearMiss
 from sklearn.multiclass import OneVsRestClassifier
 
 
-directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/"
-#directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
-
 # Read & Check dataset
-data, labels = read_dataset(directory)
+data, labels = read_dataset()
 check_dataset(data, labels)
 data_np, labels_np = dataframe_to_numpy(data, labels)
 
@@ -65,11 +62,11 @@ save_estimator(directory, model_rdf, "RF_BD_NEARMISS.joblib")
 print("[RANDOM FOREST] RF_BD model saved")
 
 #predict
-score = balanced_model_predict(model=model_rdf, name="RF_BD_NEARMISS", test_data=data_test, test_labels=labels_test, directory=directory)
+score = balanced_model_predict(model=model_rdf, name="RF_BD_NEARMISS", test_data=data_test, test_labels=labels_test)
 print("[RANDOM_FOREST] Balanced accuracy score:", score)
 
 # plot feature importances for the best model
-plot_feature_importance(estimator = model_rdf, name = "RF_BD_NEARMISS", selected_features = selected_features, directory = directory)
+plot_feature_importance(estimator=model_rdf, name="RF_BD_NEARMISS", selected_features=selected_features)
 
 # select important features based on threshold
 imp_features, imp_features_test, feature_names_RFC = select_features_from_model(model_rdf, 0.0004, True, selected_features, data_train, data_test)
@@ -104,7 +101,7 @@ imp_features, imp_features_test, feature_names_RFC = select_features_from_model(
 print("[SVM_RFE] Found ", len(feature_names_RFC), " important features")
 
 # plot feature importances for the best model
-plot_feature_importance(estimator = pipe, name = "SVM_RFE_BD_NEARMISS", selected_features = selected_features, directory = directory)
+plot_feature_importance(estimator=pipe, name="SVM_RFE_BD_NEARMISS", selected_features=selected_features)
 
 
 

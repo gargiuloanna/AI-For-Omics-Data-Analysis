@@ -10,13 +10,10 @@ from ModelEvaluation.Performance import plot_clustering
 from sklearn.cluster import KMeans
 
 #--------------------------------------------------------------------READ DATASET--------------------------------------------------------------------#
-directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/"
-#directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
-
 # Read & Check dataset
-data, labels = read_dataset(directory)
+data, labels = read_dataset()
 check_dataset(data, labels)
-outliers(data, data.columns, replace=True)
+#outliers(data, data.columns, replace=True)
 data_np, labels_np = dataframe_to_numpy(data, labels)
 # Feature Selection
 data_np, selected_features = feature_pre_selection(data)
@@ -26,6 +23,7 @@ data_sc = scale(data_np)
 #PCA
 pca = PCA(n_components=5)
 df = pca.fit_transform(data_np)
+print(pca.explained_variance_)
 df_pd = pd.DataFrame(data = df, columns = ['principal component 1', 'principal component 2', 'principal component 3', 'principal component 4', 'principal component 5'])
 codes = {'BRCA':'red', 'COAD':'green', 'LUAD':'blue', 'PRAD':'violet', 'KIRC':'orange'}
 pd.plotting.scatter_matrix(df_pd, c=labels.Class.map(codes), figsize = (30, 30));
@@ -35,7 +33,7 @@ df = df_pd.to_numpy()
 # _____________________________________________________________________K MEANS__________________________________________________________________________________#
 clusterer = KMeans(n_clusters=5, random_state=12345, n_init = 100, algorithm= 'elkan')
 cluster_labels = clusterer.fit_predict(df)
-plot_clustering(clusterer = clusterer, cluster_labels = cluster_labels, n_clusters = 5, df = df, directory = directory)
+plot_clustering(clusterer=clusterer, cluster_labels=cluster_labels, n_clusters=5, df=df)
 
 #save_estimator
 save_estimator(directory, clusterer, "KMeans.joblib")

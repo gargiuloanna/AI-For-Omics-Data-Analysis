@@ -10,11 +10,10 @@ from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator
 from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance
 
-directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/"
-#directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
+
 
 # Read & Check dataset
-data, labels = read_dataset(directory)
+data, labels = read_dataset()
 check_dataset(data, labels)
 data_np, labels_np = dataframe_to_numpy(data, labels)
 
@@ -51,7 +50,7 @@ save_estimator(directory, pipe, "SVM_RFE_BD.joblib")
 print("[SVM_RFE] SVM_RFE model saved")
 
 #predict
-score = unbalanced_model_predict(model=pipe, name="SVM_RFE_BD", test_data=data_test, test_labels=labels_test, directory=directory)
+score = unbalanced_model_predict(model=pipe, name="SVM_RFE_BD", test_data=data_test, test_labels=labels_test)
 print("[SVM_RFE] Balanced accuracy score:", score)
 
 # select important features based on threshold
@@ -59,7 +58,7 @@ imp_features, imp_features_test, feature_names_RFC = select_features_from_model(
 print("[SVM_RFE] Found ", len(feature_names_RFC), " important features")
 
 # plot feature importances for the best model
-plot_feature_importance(estimator = pipe, name = "SVM_RFE_BD", selected_features = selected_features, directory = directory)
+plot_feature_importance(estimator=pipe, name="SVM_RFE_BD", selected_features=selected_features)
 
 #get BEST features NAMES
 mask = pipe.named_steps['rfe'].support_

@@ -1,5 +1,5 @@
 #no balancing
-
+import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy
@@ -9,11 +9,9 @@ from ModelEvaluation.SaveLoad import save_estimator, load_estimator
 from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance
 from sklearn.multiclass import OneVsRestClassifier
 
-directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/"
-#directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
 
 # Read & Check dataset
-data, labels = read_dataset(directory)
+data, labels = read_dataset()
 check_dataset(data, labels)
 data_np, labels_np = dataframe_to_numpy(data, labels)
 
@@ -61,38 +59,43 @@ print("[RANDOM_FOREST] Balanced accuracy score:", score)
 '''
 #save model
 results = load_estimator(directory, "RF_NB.joblib")
-print("[RANDOM FOREST] RF_NB model saved")
+print("[RANDOM FOREST] RF_NB model loaded")
 
-
+imp_features_train = list()
+imp_features_test= list()
+feature_names_RFC = list()
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(results.estimators_[0], 0.0004, True, selected_features, data_train, data_test)
-
-for i in range(1,5):
+for i in range(0,5):
     # plot feature importances for the best model
     #plot_feature_importance(estimator=results.estimators_[i], name="RF_NB", selected_features=selected_features, directory=directory)
     #get important features
-    imp_features, imp_features_test, feature_names_RFC = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test)
-    print("[RANDOM FOREST", i, "] Found ", len(feature_names_RFC), " important features")
-    imp_features.append(imp_features)
-    imp_features_test.append(imp_features_test)
-    feature_names_RFC.append(feature_names_RFC)
+    imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test)
+    print("[RANDOM FOREST", i, "] Found ", len(feature_names_RFC_sin), " important features")
+    imp_features_train.append(imp_features_train_sin)
+    imp_features_test.append(imp_features_test_sin)
+    feature_names_RFC.append(feature_names_RFC_sin)
+
+print(pd.DataFrame(feature_names_RFC).head())
 
 
 
 #_________________________________Retraining with selected features________________________#
+
+
+
 '''
-retrained_rdf = RandomForestClassifier(**model_rdf.get_params())
+retrained_rdf = RandomForestClassifier(**results.estimators_[0].get_params())
 retrained_ovr = OneVsRestClassifier(estimator=retrained_rdf, n_jobs=-1)
 #da errore: ValueError: setting an array element with a sequence.
 # The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (2800,) + inhomogeneous part.
-retrained_results = ovr.fit(imp_features, labels_train)
+retrained_results = retrained_ovr.fit(imp_features_train, labels_train)
 
 #save model
 save_estimator(directory, retrained_rdf, "RF_NB_retrained.joblib")
 print("[RANDOM FOREST RETRAINED] RF_NB Re-trained model saved")
 
 #predict
-score = unbalanced_model_predict(model=model_rdf, name="RF_NB_retrained", test_data=imp_features_test, test_labels=labels_test, directory=directory)
+score = unbalanced_model_predict(model=retrained_results, name="RF_NB_retrained", test_data=imp_features_test, test_labels=labels_test, directory=directory)
 print("[RANDOM_FOREST RETRAINED] Balanced accuracy score:", score)
 '''
 

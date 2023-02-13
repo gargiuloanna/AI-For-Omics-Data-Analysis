@@ -7,15 +7,16 @@ import scikitplot.metrics as skplt_m
 from sklearn.feature_selection import SelectFromModel
 from sklearn.metrics import balanced_accuracy_score, accuracy_score, silhouette_samples, silhouette_score
 
+directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project"
 
-def unbalanced_model_predict(model, name, test_data, test_labels, directory):
+def unbalanced_model_predict(model, name, test_data, test_labels):
     lab_pred = model.predict(test_data)
     score = balanced_accuracy_score(test_labels, lab_pred)
     skplt_m.plot_confusion_matrix(test_labels, lab_pred)
     plt.savefig(directory + "/Plots/" + name + "_CONFUSION.png")
     return score
 
-def balanced_model_predict(model, name, test_data, test_labels, directory):
+def balanced_model_predict(model, name, test_data, test_labels):
     lab_pred = model.predict(test_data)
     score = accuracy_score(test_labels, lab_pred)
     skplt_m.plot_confusion_matrix(test_labels, lab_pred)
@@ -31,13 +32,13 @@ def select_features_from_model(model, threshold, prefit, selected_features, trai
     return imp_features, imp_features_test, feature_names
 
 
-def plot_feature_importance(estimator, name, selected_features, directory):
+def plot_feature_importance(estimator, name, selected_features):
     skplt.estimators.plot_feature_importances(estimator, feature_names=selected_features, max_num_features=300, figsize=(100, 100))
     filename = os.path.join(directory + "/Plots/", name + "_PLOT.png")
     plt.savefig(filename)
     plt.show()
 
-def plot_clustering(clusterer, cluster_labels, n_clusters, df, directory):
+def plot_clustering(clusterer, cluster_labels, n_clusters, df):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.set_size_inches(18, 7)
     ax1.set_xlim([-1, 1])

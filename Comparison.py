@@ -9,11 +9,8 @@ from DatasetPrep.Scaling import scale
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multiclass import OneVsRestClassifier
 
-directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project/"
-#directory = "C:/Users/Luigina/Il mio Drive/AI-Project/"
-
 # Read & Check dataset
-data, labels = read_dataset(directory)
+data, labels = read_dataset()
 check_dataset(data, labels)
 data_np, labels_np = dataframe_to_numpy(data, labels)
 
@@ -50,18 +47,13 @@ set_svm = set(feature_names_SVM_RFE)
 #Load Random Forest
 rdf = load_estimator(directory, "RF_NB.joblib")
 # select best feature per class
-model_rdf = RandomForestClassifier(**rdf.get_params())
-ovr = OneVsRestClassifier(estimator=model_rdf, n_jobs=-1)
-rdf_fit = ovr.fit(data_train, labels_train)
-print(rdf_fit.estimators_)
 
 for i in range(0, 5):
-  imp_features, imp_features_test, feature_names_RFC = select_features_from_model(model=rdf_fit.estimators_[i], threshold=0.0004, prefit=True, selected_features=selected_features, train = data_train, test = data_test)
+  imp_features, imp_features_test, feature_names_RFC = select_features_from_model(model=rdf.estimators_[i], threshold=0.0004, prefit=True, selected_features=selected_features, train = data_train, test = data_test)
   #print("[RANDOM FOREST" , i , "] Found ", len(feature_names_RFC), " important features:\n", feature_names_RFC)
   set_rfc = set(feature_names_RFC)
-  print(feature_names_SVM_RFE[c[i].argmax()])
-  print(feature_names_SVM_RFE[c[i].argmin()])
-  set_svm = set([feature_names_SVM_RFE[c[i].argmax()],feature_names_SVM_RFE[c[i].argmin()]])
+  set_svm = set(feature_names_SVM_RFE)
+  #set_svm = set([feature_names_SVM_RFE[c[i].argmax()],feature_names_SVM_RFE[c[i].argmin()]])
   intersection = set_svm.intersection(set_rfc)
   print("length of intersection,  ", len(intersection))
   print("Common features: \n", intersection)
@@ -77,7 +69,7 @@ for i in range(0, 5):
 
 '''
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(model=rdf, threshold=0.0004, prefit=True, selected_features=selected_features, train = data_train, test = data_test)
+imp_features_train, imp_features_test, feature_names_RFC = select_features_from_model(model=rdf, threshold=0.0004, prefit=True, selected_features=selected_features, train = data_train, test = data_test)
 print("[RANDOM FOREST] Found ", len(feature_names_RFC), " important features")
 '''
 

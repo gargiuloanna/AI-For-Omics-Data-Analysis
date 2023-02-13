@@ -2,11 +2,12 @@ import numpy as np
 import pandas as pd
 from tabulate import tabulate
 
+directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project"
 
-def read_dataset(directory):
+def read_dataset():
     print("[INFO] Reading dataset...")
-    data = pd.read_csv(directory + "TCGA-PANCAN-HiSeq-801x20531/data.csv", sep=',', header=0, index_col=0)
-    labels = pd.read_csv(directory + "TCGA-PANCAN-HiSeq-801x20531/labels.csv", sep=',', header=0, index_col=0)
+    data = pd.read_csv(directory + "/TCGA-PANCAN-HiSeq-801x20531/data.csv", sep=',', header=0, index_col=0)
+    labels = pd.read_csv(directory + "/TCGA-PANCAN-HiSeq-801x20531/labels.csv", sep=',', header=0, index_col=0)
     print("[INFO] Finished reading dataset")
     return data, labels
 
@@ -26,8 +27,8 @@ def dataframe_to_numpy(data, labels):
     return data_np, labels_np
 
 
-def get_dataset(directory):
-    data, labels = read_dataset(directory)
+def get_dataset():
+    data, labels = read_dataset()
     if not check_dataset(data, labels):
         return dataframe_to_numpy
     else:
