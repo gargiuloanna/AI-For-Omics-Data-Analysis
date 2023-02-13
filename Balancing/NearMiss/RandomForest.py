@@ -15,19 +15,19 @@ from sklearn.multiclass import OneVsRestClassifier
 data, labels = read_dataset()
 check_dataset(data, labels)
 data, labels = remove_outliers(data, labels)
-nearmiss = NearMiss(version=3, n_jobs=-1)
+nearmiss = NearMiss(version=2, n_jobs=-1)
 data_resampled_np, labels_resampled_np = nearmiss.fit_resample(data, labels)
 print("Total number of samples after nearmiss: ", len(data_resampled_np), ". Total number of labels ", len(labels_resampled_np))
 # Scale the samples
 data_sc = scale(data_resampled_np)
 # Feature Selection
-data_np, selected_features = feature_pre_selection(data, data_resampled_np)
+data_np, selected_features = feature_pre_selection(data, data_sc)
 
 #_____________________________________________________________________SPLIT DATASET_____________________________________________________________________#
 # Split data
 # make sure that the split is always the same,  and that the classes are somewhat balanced between splits
 print("[INFO] Splitting dataset...")
-data_train, data_test, labels_train, labels_test = train_test_split(data_sc, np.ravel(labels_resampled_np), test_size=0.30, random_state=12345, stratify=labels_resampled_np)
+data_train, data_test, labels_train, labels_test = train_test_split(data_np, np.ravel(labels_resampled_np), test_size=0.30, random_state=12345, stratify=labels_resampled_np)
 print("[INFO] Finished splitting dataset...")
 
 # _____________________________________________________________________RANDOM FOREST__________________________________________________________________________________#

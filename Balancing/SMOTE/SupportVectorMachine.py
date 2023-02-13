@@ -10,19 +10,19 @@ from DatasetPrep.VariablePreSelection import feature_pre_selection
 from DatasetPrep.Scaling import scale
 from ModelEvaluation.SaveLoad import save_estimator
 from ModelEvaluation.Performance import balanced_model_predict, select_features_from_model, get_features_name
-
+from sklearn.neighbors import NearestNeighbors
 #_____________________________________________________________________READ DATASET_____________________________________________________________________#
 # Read & Check dataset
 data, labels = read_dataset()
 check_dataset(data, labels)
 data, labels = remove_outliers(data, labels)
-smote = SMOTE(n_jobs=-1, random_state=12345)
+smote = SMOTE(k_neighbors=NearestNeighbors(n_jobs=-1), random_state=12345)
 data_resampled_np, labels_resampled_np = smote.fit_resample(data, labels)
 print("Total number of samples after smote: ", len(data_resampled_np), ". Total number of labels ", len(labels_resampled_np))
 # Scale the samples
 data_sc = scale(data_resampled_np)
 # Feature Selection
-data_np, selected_features = feature_pre_selection(data, data_resampled_np)
+data_np, selected_features = feature_pre_selection(data, data_sc)
 
 #_____________________________________________________________________SPLIT DATASET_____________________________________________________________________#
 # Split data
