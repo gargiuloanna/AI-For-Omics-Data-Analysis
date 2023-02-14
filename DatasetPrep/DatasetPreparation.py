@@ -41,3 +41,12 @@ def remove_outliers(data, labels):
     local = LocalOutlierFactor(n_neighbors=15, n_jobs=-1)
     outliers = local.fit_predict(data)
     return data[outliers == 1], labels[outliers == 1]
+
+def remove_correlated_features(data, columns_names):
+    cov = np.cov(data, rowvar=False)
+    c = pd.DataFrame(np.abs(cov), columns=columns_names)
+    # select upper traingle of correlation matrix
+    upper = c.where(np.triu(np.ones(c.shape), k=1).astype(bool))
+    to_drop = [column for column in upper.columns if any(upper[column] > 0.8)]
+    data_sc = pd.DataFrame(data, columns=columns_names)
+    return data_sc.drop(to_drop, axis=1, inplace=True)

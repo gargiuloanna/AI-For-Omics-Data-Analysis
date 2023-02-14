@@ -18,7 +18,7 @@ from ModelEvaluation.SaveLoad import save_estimator
 data, labels = read_dataset()
 check_dataset(data, labels)
 data, labels = remove_outliers(data, labels)
-smote = SMOTE(k_neighbors=NearestNeighbors(n_jobs=-1), random_state=12345)
+smote = SMOTE(k_neighbors=NearestNeighbors(n_jobs=3), random_state=12345)
 data_resampled_np, labels_resampled_np = smote.fit_resample(data, labels)
 print("Total number of samples after smote: ", len(data_resampled_np), ". Total number of labels ", len(labels_resampled_np))
 # Scale the samples
