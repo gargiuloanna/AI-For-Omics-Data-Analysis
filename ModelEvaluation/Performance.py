@@ -170,3 +170,15 @@ def plot_dendrogram(model, **kwargs):
     plt.savefig(directory + "/Plots/AgglomerateDendrogram.png")
     plt.show()
 
+def get_features_PCA(selected_features, component, name):
+    most_important = component.argsort()[::-1]
+    most_important_names = np.array(selected_features)[most_important][:20]
+    zipped_feats = zip(most_important_names, np.sort(component)[::-1])
+    zipped_feats = sorted(zipped_feats, key=lambda x: x[1])
+    features, importances = zip(*zipped_feats)
+    plt.title('Feature Importances')
+    plt.barh(range(len(features)), importances, height=0.6, color='#D8BFD8', align='center')
+    plt.yticks(range(len(importances)), features)
+    plt.xlabel('Relative Importance')
+    plt.savefig(directory + "/Plots/" +  name + ".png")
+    plt.show()

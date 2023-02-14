@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy, remove_outliers
 from DatasetPrep.VariablePreSelection import feature_pre_selection
-from ModelEvaluation.Performance import plot_clustering
+from ModelEvaluation.Performance import plot_clustering, get_features_PCA
 from ModelEvaluation.SaveLoad import save_estimator
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
@@ -31,11 +31,6 @@ variance = pca.explained_variance_ratio_ * 100
 for v in variance:
     print(f"% Variance Ratio per PC ", v)
 
-plt.plot(np.cumsum(pca.explained_variance_ratio_))
-plt.xlabel('number of components')
-plt.ylabel('cumulative explained variance')
-plt.show()
-
 codes = {'BRCA': 'red', 'COAD': 'green', 'LUAD': 'blue', 'PRAD': 'violet', 'KIRC': 'orange'}
 df_pd = pd.DataFrame(data=df, columns=['PC 1', 'PC 2', 'PC 3', 'PC 4', 'PC 5', 'PC 6', 'PC 7', 'PC 8', 'PC 9', 'PC 10'])
 pd.plotting.scatter_matrix(df_pd, c=labels.Class.map(codes), figsize=(50, 50))
@@ -44,10 +39,9 @@ df = df_pd.to_numpy()
 
 # _____________________________________________________________________Feature Names_____________________________________________________________________#
 
-n_pcs = pca.components_.shape[0]
-most_important = [np.abs(pca.components_[i]).argmax() for i in range(n_pcs)]
-most_important_names = [selected_features[most_important[i]] for i in range(n_pcs)]
-print(most_important_names)
+get_features_PCA(selected_features, pca.components_[0], "component1")
+get_features_PCA(selected_features, pca.components_[2], "component3")
+
 
 # _____________________________________________________________________K MEANS__________________________________________________________________________________#
 
