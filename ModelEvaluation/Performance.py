@@ -43,16 +43,12 @@ def plot_feature_importance(estimator, name, selected_features):
     plt.show()
 
 
-def get_feature_importance(estimator, selected_features):
-    important_features = {}
+def get_feature_importance(estimator, selected_features, threshold):
     importances = estimator.feature_importances_
-    max_num_features = min(300, len(importances))
-    indices = np.argsort(importances)[::-1]
-    importances = np.sort(importances)[::-1]
+    indices = np.argsort(importances)[::-1][:threshold]
+    print(np.sort(importances)[::-1][:threshold])
     feature_names = np.array(selected_features)[indices]
-    for index in indices:
-        important_features[feature_names[index]] = importances[index]
-    return sorted(important_features.items(), key=operator.itemgetter(1), reverse=True)
+    return feature_names
 
 
 def plot_clustering(clusterer, cluster_labels, n_clusters, df):
@@ -136,9 +132,14 @@ def plot_clustering(clusterer, cluster_labels, n_clusters, df):
     plt.show()
 
 
-def get_features_name(support, selected_features):
+def get_features_name_RFE(support, selected_features):
     feature_names_SVM_RFE = []
     for i in range(len(support)):
         if support[i] == True:
             feature_names_SVM_RFE.append(selected_features[i])
     return feature_names_SVM_RFE
+
+def get_importances_sorted(svm):
+    abs_coef = abs(svm.coef_)
+    indices = np.argsort(abs_coef)[::-1]
+    return indices

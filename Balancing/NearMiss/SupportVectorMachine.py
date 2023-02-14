@@ -9,7 +9,7 @@ from sklearn.svm import LinearSVC
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, remove_outliers
 from DatasetPrep.Scaling import scale
 from DatasetPrep.VariablePreSelection import feature_pre_selection
-from ModelEvaluation.Performance import balanced_model_predict, get_features_name
+from ModelEvaluation.Performance import balanced_model_predict, get_features_name_RFE
 from ModelEvaluation.SaveLoad import save_estimator
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
@@ -17,13 +17,13 @@ from ModelEvaluation.SaveLoad import save_estimator
 data, labels = read_dataset()
 check_dataset(data, labels)
 data, labels = remove_outliers(data, labels)
-nearmiss = NearMiss(version=3, n_jobs=-1)
+nearmiss = NearMiss(version=2, n_jobs=-1)
 data_resampled_np, labels_resampled_np = nearmiss.fit_resample(data, labels)
 print("Total number of samples after nearmiss: ", len(data_resampled_np), ". Total number of labels ", len(labels_resampled_np))
 # Scale the samples
 data_sc = scale(data_resampled_np)
 # Feature Selection
-data_np, selected_features = feature_pre_selection(data, data_resampled_np)
+data_np, selected_features = feature_pre_selection(data, data_sc)
 
 # _____________________________________________________________________SPLIT DATASET_____________________________________________________________________#
 # Split data
@@ -57,7 +57,7 @@ score = balanced_model_predict(model=pipe, name="SVM_RFE_NEARMISS", test_data=da
 print("[SVM_RFE WITH NEARMISS] Balanced accuracy score:", score)
 
 # get BEST features NAMES
-feature_names_SVM_RFE = get_features_name(support=pipe.named_steps['rfe'].support_, selected_features=selected_features)
+feature_names_SVM_RFE = get_features_name_RFE(support=pipe.named_steps['rfe'].support_, selected_features=selected_features)
 
 # get important features per class
 c = pipe.named_steps['svm_model'].coef_

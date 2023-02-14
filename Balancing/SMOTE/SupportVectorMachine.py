@@ -10,7 +10,7 @@ from sklearn.svm import LinearSVC
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, remove_outliers
 from DatasetPrep.Scaling import scale
 from DatasetPrep.VariablePreSelection import feature_pre_selection
-from ModelEvaluation.Performance import balanced_model_predict, get_features_name
+from ModelEvaluation.Performance import balanced_model_predict, get_features_name_RFE
 from ModelEvaluation.SaveLoad import save_estimator
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
@@ -58,7 +58,7 @@ score = balanced_model_predict(model=pipe, name="SVM_RFE_SMOTE", test_data=data_
 print("[SVM_RFE WITH SMOTE] Balanced accuracy score:", score)
 
 # get BEST features NAMES
-feature_names_SVM_RFE = get_features_name(support=pipe.named_steps['rfe'].support_, selected_features=selected_features)
+feature_names_SVM_RFE = get_features_name_RFE(support=pipe.named_steps['rfe'].support_, selected_features=selected_features)
 
 # get important features per class
 c = pipe.named_steps['svm_model'].coef_
