@@ -3,7 +3,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.multiclass import OneVsRestClassifier
 
-from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy, remove_outliers
+from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy, remove_outliers, \
+    remove_correlated_features
 from DatasetPrep.Scaling import scale
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance
@@ -18,7 +19,8 @@ data_np, labels_np = dataframe_to_numpy(data, labels)
 # Scale the samples
 data_sc = scale(data_np)
 # Feature Selection
-data_np, selected_features = feature_pre_selection(data, data_sc)
+data_sc = remove_correlated_features(data_sc, data.columns)
+data_np, selected_features = feature_pre_selection(data, data_sc.to_numpy())
 
 # _____________________________________________________________________SPLIT DATASET_____________________________________________________________________#
 # Split data
