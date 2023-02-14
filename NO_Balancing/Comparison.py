@@ -51,7 +51,7 @@ imp_features, imp_features_test, feature_names_RFC = select_features_from_model(
 
 
 #to see the most important features
-f = get_feature_importance(rdf, selected_features, len(feature_names_RFC))
+f = get_feature_importance(rdf, selected_features, len(feature_names_RFC), "RF_NB")
 #print(f)
 set_rfc = set(f)
 # _____________________________________________________________________COMPARISON_____________________________________________________________________#
