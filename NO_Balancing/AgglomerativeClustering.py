@@ -1,15 +1,12 @@
-# no balancing
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy, remove_outliers
 from DatasetPrep.VariablePreSelection import feature_pre_selection
-from ModelEvaluation.Performance import plot_clustering
+from DatasetPrep.Scaling import scale
+from sklearn.cluster import AgglomerativeClustering
+from ModelEvaluation.Performance import plot_clustering, plot_dendrogram
 from ModelEvaluation.SaveLoad import save_estimator
+from sklearn.decomposition import PCA
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
 
@@ -31,29 +28,20 @@ variance = pca.explained_variance_ratio_ * 100
 for v in variance:
     print(f"% Variance Ratio per PC ", v)
 
-plt.plot(np.cumsum(pca.explained_variance_ratio_))
-plt.xlabel('number of components')
-plt.ylabel('cumulative explained variance')
-plt.show()
-
 codes = {'BRCA': 'red', 'COAD': 'green', 'LUAD': 'blue', 'PRAD': 'violet', 'KIRC': 'orange'}
 df_pd = pd.DataFrame(data=df, columns=['PC 1', 'PC 2', 'PC 3', 'PC 4', 'PC 5', 'PC 6', 'PC 7', 'PC 8', 'PC 9', 'PC 10'])
 pd.plotting.scatter_matrix(df_pd, c=labels.Class.map(codes), figsize=(50, 50))
 df_pd.drop(['PC 2', 'PC 4', 'PC 5', 'PC 6', 'PC 7', 'PC 8', 'PC 9', 'PC 10'], axis=1, inplace=True)
 df = df_pd.to_numpy()
 
-# _____________________________________________________________________Feature Names_____________________________________________________________________#
+# _____________________________________________________________________AGGLOMERATIVE CLUSTERING_____________________________________________________________________#
 
-n_pcs = pca.components_.shape[0]
-most_important = [np.abs(pca.components_[i]).argmax() for i in range(n_pcs)]
-most_important_names = [selected_features[most_important[i]] for i in range(n_pcs)]
-print(most_important_names)
-
-# _____________________________________________________________________K MEANS__________________________________________________________________________________#
-
-clusterer = KMeans(n_clusters=5, random_state=12345, n_init=100, algorithm='elkan')
-cluster_labels = clusterer.fit_predict(df)
+clusterer = AgglomerativeClustering(n_clusters=5, affinity='euclidean', memory=None, connectivity=None,
+                        compute_full_tree='auto', linkage='ward', distance_threshold=None, compute_distances=True)
+cluster_labels = clusterer.fit_predict(data_np)
 plot_clustering(clusterer=clusterer, cluster_labels=cluster_labels, n_clusters=5, df=df)
+plot_dendrogram(clusterer)
+
 
 # save_estimator
-save_estimator(clusterer, "KMeans.joblib")
+save_estimator(clusterer, "AgglomerativeClustering.joblib")

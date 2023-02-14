@@ -1,6 +1,4 @@
 import os
-
-import operator
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,6 +6,7 @@ import scikitplot as skplt
 import scikitplot.metrics as skplt_m
 from sklearn.feature_selection import SelectFromModel
 from sklearn.metrics import balanced_accuracy_score, accuracy_score, silhouette_samples, silhouette_score
+from scipy.cluster.hierarchy import dendrogram
 
 directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project"
 
@@ -46,7 +45,6 @@ def plot_feature_importance(estimator, name, selected_features):
 def get_feature_importance(estimator, selected_features, threshold):
     importances = estimator.feature_importances_
     indices = np.argsort(importances)[::-1][:threshold]
-    print(np.sort(importances)[::-1][:threshold])
     feature_names = np.array(selected_features)[indices]
     return feature_names
 
@@ -104,6 +102,7 @@ def plot_clustering(clusterer, cluster_labels, n_clusters, df):
     )
 
     # Labeling the clusters
+    '''
     centers = clusterer.cluster_centers_
     # Draw white circles at cluster centers
     ax2.scatter(
@@ -118,6 +117,7 @@ def plot_clustering(clusterer, cluster_labels, n_clusters, df):
 
     for i, c in enumerate(centers):
         ax2.scatter(c[0], c[1], marker="$%d$" % i, alpha=1, s=50, edgecolor="k")
+    '''
 
     ax2.set_title("The visualization of the clustered data.")
     ax2.set_xlabel("Feature space for the 1st PC")
@@ -128,7 +128,7 @@ def plot_clustering(clusterer, cluster_labels, n_clusters, df):
         fontsize=14,
         fontweight="bold",
     )
-    plt.savefig(directory + "/Plots/KMeans.png")
+    plt.savefig(directory + "/Plots/" + str(clusterer) + ".png")
     plt.show()
 
 
@@ -143,3 +143,30 @@ def get_importances_sorted(svm):
     abs_coef = abs(svm.coef_)
     indices = np.argsort(abs_coef)[::-1]
     return indices
+
+def plot_dendrogram(model, **kwargs):
+    # Create linkage matrix and then plot the dendrogram
+
+    # create the counts of samples under each node
+    counts = np.zeros(model.children_.shape[0])
+    n_samples = len(model.labels_)
+    for i, merge in enumerate(model.children_):
+        current_count = 0
+        for child_idx in merge:
+            if child_idx < n_samples:
+                current_count += 1  # leaf node
+            else:
+                current_count += counts[child_idx - n_samples]
+        counts[i] = current_count
+
+    linkage_matrix = np.column_stack(
+        [model.children_, model.distances_, counts]
+    ).astype(float)
+
+    # Plot the corresponding dendrogram
+    plt.title("Hierarchical Clustering Dendrogram")
+    dendrogram(linkage_matrix, **kwargs)
+    plt.xlabel("Index of points")
+    plt.savefig(directory + "/Plots/AgglomerateDendrogram.png")
+    plt.show()
+

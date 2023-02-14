@@ -34,9 +34,9 @@ feature_names_SVM_RFE = get_features_name_RFE(support=svm.named_steps['rfe'].sup
 indices = get_importances_sorted(svm.named_steps['svm_model'])
 print(indices.shape)
 print("[SVM_RFE] Most important features")
-for i in range(5):
-    print('Important Features for class ' + svm.named_steps['svm_model'].classes_[i])
-    print(np.array(feature_names_SVM_RFE)[indices[i]])
+#for i in range(5):
+    #print('Important Features for class ' + svm.named_steps['svm_model'].classes_[i])
+    #print(np.array(feature_names_SVM_RFE)[indices[i]])
 set_svm = set(feature_names_SVM_RFE)
 # _____________________________________________________________________LOAD RANDOM FOREST_____________________________________________________________________#
 # Load Random Forest
@@ -52,15 +52,19 @@ imp_features, imp_features_test, feature_names_RFC = select_features_from_model(
 
 #to see the most important features
 f = get_feature_importance(rdf, selected_features, len(feature_names_RFC))
-print(f)
+#print(f)
 set_rfc = set(f)
 # _____________________________________________________________________COMPARISON_____________________________________________________________________#
-intersection = set_svm.intersection(set_rfc)
-print("[INFO] Comparing important features between RF and SVM for all the five tumors...")
+intersection = set_svm.intersection(best_set)
+intersection2 = set_rfc.intersection(best_set)
+
+print("[INFO] Comparing important features between RF and best set...")
+print(len(intersection2), "common features: \n", intersection2)
+print("[INFO] Comparing important features between SVM and best set...")
 print(len(intersection), "common features: \n", intersection)
 
 
-
+'''
 # _____________________________________________________________________LOAD RANDOM FOREST-OVR_____________________________________________________________________#
 # Load Random Forest
 rdf = load_estimator("RF_OVR_NB.joblib")
@@ -78,3 +82,4 @@ for i in range(0, 5):
     intersection = set_svm.intersection(set_rdf)
     print('Important Features for class ' + rdf.classes_[i])
     print(len(intersection), "common features: \n", intersection)
+'''
