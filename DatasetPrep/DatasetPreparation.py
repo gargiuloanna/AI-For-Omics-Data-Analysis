@@ -47,7 +47,7 @@ def remove_outliers(data, labels):
 def remove_correlated_features(data, columns_names):
     cov = np.cov(data, rowvar=False)
     c = pd.DataFrame(np.abs(cov), columns=columns_names)
-    # select upper traingle of correlation matrix
+    # select upper triangle of correlation matrix
     upper = c.where(np.triu(np.ones(c.shape), k=1).astype(bool))
     to_drop = [column for column in upper.columns if any(upper[column] > 0.8)]
     data_sc = pd.DataFrame(data, columns=columns_names)

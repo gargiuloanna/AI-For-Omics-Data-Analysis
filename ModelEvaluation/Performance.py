@@ -32,7 +32,7 @@ def select_features_from_model(model, threshold, prefit, selected_features, trai
     sfm = SelectFromModel(estimator=model, threshold=threshold, prefit=prefit)
     imp_features = sfm.transform(train)
     imp_features_test = sfm.transform(test)
-    feature_names = get_feature_importance(model, selected_features, threshold, name)
+    feature_names = get_feature_importance(model, selected_features, imp_features.shape[1], name)
     return imp_features, imp_features_test, feature_names
 
 def get_feature_importance(estimator, selected_features, threshold, name):
@@ -101,9 +101,8 @@ def plot_clustering(clusterer, cluster_labels, n_clusters, df):
     ax2.scatter(
         df[:, 0], df[:, 1], marker=".", s=30, lw=0, alpha=0.7, c=colors, edgecolor="k"
     )
-
-    # Labeling the clusters
     '''
+    # Labeling the clusters
     centers = clusterer.cluster_centers_
     # Draw white circles at cluster centers
     ax2.scatter(
@@ -119,7 +118,6 @@ def plot_clustering(clusterer, cluster_labels, n_clusters, df):
     for i, c in enumerate(centers):
         ax2.scatter(c[0], c[1], marker="$%d$" % i, alpha=1, s=50, edgecolor="k")
     '''
-
     ax2.set_title("The visualization of the clustered data.")
     ax2.set_xlabel("Feature space for the 1st PC")
     ax2.set_ylabel("Feature space for the 2nd PC")
@@ -189,7 +187,7 @@ def plot_barh(x, y, name):
     zipped_feats = sorted(zipped_feats, key=lambda x: x[1])
     features, importances = zip(*zipped_feats)
     plt.figure(figsize=(10, 10))
-    plt.title('Feature Importances')
+    plt.title('Feature Importances' +  name)
     plt.barh(range(len(features)), importances, height=0.6, color='#D8BFD8', align='center')
     plt.yticks(range(len(importances)), features)
     plt.xlabel('Relative Importance')

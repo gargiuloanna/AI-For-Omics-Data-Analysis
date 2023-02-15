@@ -1,7 +1,4 @@
 # no balancing
-
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
@@ -31,6 +28,8 @@ variance = pca.explained_variance_ratio_ * 100
 for v in variance:
     print(f"% Variance Ratio per PC ", v)
 
+
+
 codes = {'BRCA': 'red', 'COAD': 'green', 'LUAD': 'blue', 'PRAD': 'violet', 'KIRC': 'orange'}
 df_pd = pd.DataFrame(data=df, columns=['PC 1', 'PC 2', 'PC 3', 'PC 4', 'PC 5', 'PC 6', 'PC 7', 'PC 8', 'PC 9', 'PC 10'])
 pd.plotting.scatter_matrix(df_pd, c=labels.Class.map(codes), figsize=(50, 50))
@@ -45,8 +44,13 @@ get_features_PCA(selected_features, pca.components_[2], "component3")
 
 # _____________________________________________________________________K MEANS__________________________________________________________________________________#
 
-clusterer = KMeans(n_clusters=5, random_state=12345, n_init=100, algorithm='elkan')
+clusterer = KMeans(n_clusters=5,
+                   random_state=12345,
+                   n_init=100,
+                   algorithm='elkan')
 cluster_labels = clusterer.fit_predict(df)
+
+
 plot_clustering(clusterer=clusterer, cluster_labels=cluster_labels, n_clusters=5, df=df)
 
 # save_estimator

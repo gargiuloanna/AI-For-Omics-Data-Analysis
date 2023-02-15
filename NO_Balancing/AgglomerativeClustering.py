@@ -1,12 +1,10 @@
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy, remove_outliers
 from DatasetPrep.VariablePreSelection import feature_pre_selection
-from DatasetPrep.Scaling import scale
 from sklearn.cluster import AgglomerativeClustering
 from ModelEvaluation.Performance import plot_clustering, plot_dendrogram
 from ModelEvaluation.SaveLoad import save_estimator
 from sklearn.decomposition import PCA
 import pandas as pd
-import matplotlib.pyplot as plt
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
 
@@ -36,9 +34,13 @@ df = df_pd.to_numpy()
 
 # _____________________________________________________________________AGGLOMERATIVE CLUSTERING_____________________________________________________________________#
 
-clusterer = AgglomerativeClustering(n_clusters=5, affinity='euclidean', memory=None, connectivity=None,
-                        compute_full_tree='auto', linkage='ward', distance_threshold=None, compute_distances=True)
-cluster_labels = clusterer.fit_predict(data_np)
+clusterer = AgglomerativeClustering(n_clusters=5,
+                                    affinity='euclidean',
+                                    linkage='ward',
+                                    compute_distances=True)
+cluster_labels = clusterer.fit_predict(df)
+
+
 plot_clustering(clusterer=clusterer, cluster_labels=cluster_labels, n_clusters=5, df=df)
 plot_dendrogram(clusterer)
 
