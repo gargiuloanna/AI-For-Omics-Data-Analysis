@@ -16,6 +16,7 @@ def unbalanced_model_predict(model, name, test_data, test_labels):
     score = balanced_accuracy_score(test_labels, lab_pred)
     skplt_m.plot_confusion_matrix(test_labels, lab_pred)
     plt.savefig(directory + "/Plots/" + name + "_CONFUSION.png")
+    plt.show()
     return score
 
 
@@ -163,17 +164,23 @@ def get_features_PCA(selected_features, component, name):
     plot_barh(most_important_names, np.sort(component)[::-1], name)
 
 #SVM
-def get_features_name_RFE(support, selected_features):
+def get_features_importances_SVMRFE(pipe, selected_features, name):
+    support = pipe.named_steps['rfe'].support_
+    svm = pipe.named_steps['svm_model']
     feature_names_SVM_RFE = []
     for i in range(len(support)):
         if support[i] == True:
             feature_names_SVM_RFE.append(selected_features[i])
-    return feature_names_SVM_RFE
+    importances = get_importances_sorted(svm)
+    print("[SVM_RFE] Most important features")
+    for i in range(5):
+        plot_barh(feature_names_SVM_RFE, importances[i][:20], name+'_'+svm.classes_[i])
+
 
 def get_importances_sorted(svm):
     abs_coef = abs(svm.coef_)
-    indices = np.argsort(abs_coef)[::-1]
-    return indices
+    importances = np.sort(abs_coef)[::-1]
+    return importances
 
 
 #BAR PLOT
@@ -181,6 +188,7 @@ def plot_barh(x, y, name):
     zipped_feats = zip(x, y)
     zipped_feats = sorted(zipped_feats, key=lambda x: x[1])
     features, importances = zip(*zipped_feats)
+    plt.figure(figsize=(10, 10))
     plt.title('Feature Importances')
     plt.barh(range(len(features)), importances, height=0.6, color='#D8BFD8', align='center')
     plt.yticks(range(len(importances)), features)

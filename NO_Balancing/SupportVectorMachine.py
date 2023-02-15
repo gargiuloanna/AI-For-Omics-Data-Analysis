@@ -8,7 +8,7 @@ from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, datafram
     remove_correlated_features
 from DatasetPrep.Scaling import scale
 from DatasetPrep.VariablePreSelection import feature_pre_selection
-from ModelEvaluation.Performance import unbalanced_model_predict, get_features_name_RFE
+from ModelEvaluation.Performance import unbalanced_model_predict, get_features_importances_SVMRFE
 from ModelEvaluation.SaveLoad import save_estimator
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
@@ -35,7 +35,7 @@ print("[INFO] Finished splitting dataset...")
 print("[SVM_RFE] Searching best params with GridSearchCV")
 
 svm_model = LinearSVC(max_iter=5000, random_state=12345)
-rfe = RFECV(svm_model, step=10000, verbose=2)
+rfe = RFECV(svm_model, step=9000, verbose=2)
 pipe = Pipeline([('rfe', rfe), ('svm_model', svm_model)])
 param_grid = {'svm_model__C': [0.00001, 0.0001, 0.001, 0.01, 0.1],
               'svm_model__loss': ['hinge', 'squared_hinge']}
@@ -55,12 +55,5 @@ score = unbalanced_model_predict(model=pipe, name="SVM_RFE_NB", test_data=data_t
 print("[SVM_RFE] Balanced accuracy score:", score)
 
 # get BEST features NAMES
-feature_names_SVM_RFE = get_features_name_RFE(support=pipe.named_steps['rfe'].support_, selected_features=selected_features)
+get_features_importances_SVMRFE(pipe=pipe, selected_features=selected_features, name='SVM_RFE_NB')
 
-# get important features per class
-c = pipe.named_steps['svm_model'].coef_
-print("[SVM_RFE]")
-for i in range(5):
-    print('Important Features for class ' + pipe.named_steps['svm_model'].classes_[i])
-    print(feature_names_SVM_RFE[c[i].argmax()])
-    print(feature_names_SVM_RFE[c[i].argmin()])
