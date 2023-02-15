@@ -47,6 +47,7 @@ def get_feature_importance(estimator, selected_features, threshold, name):
     indices = np.argsort(importances)[::-1][:threshold]
     feature_names = np.array(selected_features)[indices]
     plot_barh(feature_names, np.sort(importances)[::-1], name)
+    plt.savefig(directory + "/Plots/" + name + ".png")
     return feature_names
 
 
