@@ -10,6 +10,7 @@ from DatasetPrep.Scaling import scale
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from ModelEvaluation.Performance import balanced_model_predict, select_features_from_model, plot_feature_importance
 from ModelEvaluation.SaveLoad import save_estimator
+import numpy as np
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
 # Read & Check dataset
@@ -29,7 +30,7 @@ data_np, selected_features = feature_pre_selection(data, data_sc.to_numpy())
 # Split data
 # make sure that the split is always the same,  and that the classes are somewhat balanced between splits
 print("[INFO] Splitting dataset...")
-data_train, data_test, labels_train, labels_test = train_test_split(data_np, labels_resampled_np, test_size=0.30, random_state=12345, stratify=labels_resampled_np)
+data_train, data_test, labels_train, labels_test = train_test_split(data_np, np.ravel(labels_resampled_np), test_size=0.30, random_state=12345, stratify=labels_resampled_np)
 print("[INFO] Finished splitting dataset...")
 
 # _____________________________________________________________________RANDOM FOREST__________________________________________________________________________________#
