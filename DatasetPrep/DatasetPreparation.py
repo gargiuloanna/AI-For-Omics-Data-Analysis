@@ -40,6 +40,7 @@ def get_dataset():
 def remove_outliers(data, labels):
     local = LocalOutlierFactor(n_neighbors=15, n_jobs=-1)
     outliers = local.fit_predict(data)
+    print("[INFO] Removed ", data[outliers==-1].shape[0], " outliers")
     return data[outliers == 1], labels[outliers == 1]
 
 
@@ -51,4 +52,5 @@ def remove_correlated_features(data, columns_names):
     to_drop = [column for column in upper.columns if any(upper[column] > 0.8)]
     data_sc = pd.DataFrame(data, columns=columns_names)
     data_sc.drop(to_drop, axis=1, inplace=True)
+    print("[INFO] Removed ", len(to_drop), "correlated features")
     return data_sc
