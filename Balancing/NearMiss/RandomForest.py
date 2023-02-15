@@ -9,14 +9,14 @@ from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, remove_o
 from DatasetPrep.Scaling import scale
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from ModelEvaluation.Performance import balanced_model_predict, select_features_from_model, plot_feature_importance
-from ModelEvaluation.SaveLoad import save_estimator
+from ModelEvaluation.SaveLoad import save_estimator, load_estimator
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
 # Read & Check dataset
 data, labels = read_dataset()
 check_dataset(data, labels)
 data, labels = remove_outliers(data, labels)
-nearmiss = NearMiss(version=2, n_jobs=-1, random_state=12345)
+nearmiss = NearMiss(version=2, n_jobs=-1)
 data_resampled_np, labels_resampled_np = nearmiss.fit_resample(data, labels)
 print("Total number of samples after nearmiss: ", len(data_resampled_np), ". Total number of labels ", len(labels_resampled_np))
 # Scale the samples
@@ -29,11 +29,12 @@ data_np, selected_features = feature_pre_selection(data, data_sc.to_numpy())
 # Split data
 # make sure that the split is always the same,  and that the classes are somewhat balanced between splits
 print("[INFO] Splitting dataset...")
-data_train, data_test, labels_train, labels_test = train_test_split(data_sc, np.ravel(labels_resampled_np), test_size=0.30, random_state=12345, stratify=labels_resampled_np)
+data_train, data_test, labels_train, labels_test = train_test_split(data_np, np.ravel(labels_resampled_np), test_size=0.30, random_state=12345, stratify=labels_resampled_np)
 print("[INFO] Finished splitting dataset...")
 
 # _____________________________________________________________________RANDOM FOREST__________________________________________________________________________________#
 # Grid Search
+'''
 print("[RANDOM FOREST WITH NEARMISS] Searching best params with GridSearchCV")
 rdf_model = RandomForestClassifier(random_state=12345)
 param_grid = {
@@ -49,23 +50,24 @@ rdf_gridcv.fit(data_train, labels_train)
 
 print(f"[RANDOM FOREST WITH NEAR MISS] Best random forest with params: {rdf_gridcv.best_params_} and score: {rdf_gridcv.best_score_:.3f}")
 # save model
-save_estimator(rdf_gridcv.best_estimator_, "RF_NEARMISS.joblib")
+'''
+rdf = load_estimator("RF_NEARMISS.joblib")
 print("[RANDOM FOREST WITH NEARMISS] RF_NEARMISS model saved")
 
 # predict
-score = balanced_model_predict(model=rdf_gridcv.best_estimator_, name="RF_NEARMISS", test_data=data_test, test_labels=labels_test)
-print("[RANDOM_FOREST WITH NEARMISS] Balanced accuracy score:", score)
+#score = balanced_model_predict(model=rdf, name="RF_NEARMISS", test_data=data_test, test_labels=labels_test)
+#print("[RANDOM_FOREST WITH NEARMISS] Balanced accuracy score:", score)
 
 # plot feature importances for the best model
-plot_feature_importance(estimator=rdf_gridcv.best_estimator_, name="RF_NEARMISS", selected_features=selected_features)
+#lot_feature_importance(estimator=rdf, name="RF_NEARMISS", selected_features=selected_features)
 
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf_gridcv.best_estimator_, 0.0004, True, selected_features, data_train, data_test)
+imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf, 0.007, True, selected_features, data_train, data_test, "RF_BD_NEARMISS")
 print("[RFC WITH NEARMISS] Found ", len(feature_names_RFC), " important features: ")
 print(feature_names_RFC)
 
 # _____________________________________________________________________RETRAIN RANDOMFOREST______________________________________________________________________________#
-retrained_rdf = RandomForestClassifier(**rdf_gridcv.best_estimator_.get_params())
+retrained_rdf = RandomForestClassifier(**rdf.get_params())
 retrained_results = retrained_rdf.fit(imp_features, labels_train)
 
 # save model
@@ -78,7 +80,7 @@ print("[RANDOM_FOREST WITH NEARMISS RETRAINED] Balanced accuracy score:", score)
 
 # _____________________________________________________________________ONEVSREST-RANDOMFOREST___________________________________________
 # select best feature per class
-model_rdf = RandomForestClassifier(**rdf_gridcv.best_estimator_.get_params())
+model_rdf = RandomForestClassifier(**rdf.get_params())
 ovr = OneVsRestClassifier(estimator=model_rdf, n_jobs=-1)
 results = ovr.fit(data_train, labels_train)
 
@@ -91,6 +93,6 @@ for i in range(0, 5):
     # plot feature importances for the best model
     plot_feature_importance(estimator=results.estimators_[i], name="RF_OVR_NEARMISS", selected_features=selected_features)
     # get important features
-    imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test)
+    imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.007, True, selected_features, data_train, data_test, "RF_OVR_NEARMISS_"+ ovr.classes_[i])
     print("[RANDOM FOREST WITH NEARMISS", i, "] Found ", len(feature_names_RFC_sin), " important features")
     print(feature_names_RFC_sin)
