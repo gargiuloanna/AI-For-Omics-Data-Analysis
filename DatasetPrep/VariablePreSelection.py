@@ -11,4 +11,4 @@ def feature_pre_selection(data, data_np, threshold=0):
     for i in array:
         selected_features.append(features[i])
 
-    return data_np, selected_features
+    return data_removed, selected_features
