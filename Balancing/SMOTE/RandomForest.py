@@ -3,6 +3,7 @@ from imblearn.over_sampling import SMOTE
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.multiclass import OneVsRestClassifier
+from sklearn.neighbors import NearestNeighbors
 
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, remove_outliers, remove_correlated_features
 from DatasetPrep.Scaling import scale
@@ -15,7 +16,7 @@ from ModelEvaluation.SaveLoad import save_estimator
 data, labels = read_dataset()
 check_dataset(data, labels)
 data, labels = remove_outliers(data, labels)
-smote = SMOTE(n_jobs=-1, random_state=12345)
+smote = SMOTE(k_neighbors=NearestNeighbors(n_jobs=-1), random_state=12345)
 data_resampled_np, labels_resampled_np = smote.fit_resample(data, labels)
 print("Total number of samples after smote: ", len(data_resampled_np), ". Total number of labels ", len(labels_resampled_np))
 # Scale the samples
@@ -59,7 +60,7 @@ print("[RANDOM_FOREST WITH SMOTE] Balanced accuracy score:", score)
 plot_feature_importance(estimator=rdf_gridcv.best_estimator_, name="RF_SMOTE", selected_features=selected_features)
 
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf_gridcv.best_estimator_, 0.0004, True, selected_features, data_train, data_test)
+imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf_gridcv.best_estimator_, 0.0004, True, selected_features, data_train, data_test, "RF_SMOTE")
 print("[RANDOM FOREST WITH SMOTE ] Found ", len(feature_names_RFC), " important features: ")
 print(feature_names_RFC)
 
@@ -88,8 +89,8 @@ print("[RANDOM FOREST WITH SMOTE] RF_OVR_SMOTE model saved")
 # select important features based on threshold
 for i in range(0, 5):
     # plot feature importances for the best model
-    plot_feature_importance(estimator=results.estimators_[i], name="RF_OVR_SMOTE" + str(i), selected_features=selected_features)
+    plot_feature_importance(estimator=results.estimators_[i], name="RF_OVR_SMOTE_" + ovr.classes_[i], selected_features=selected_features)
     # get important features
-    imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test)
+    imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test, "RF_OVR_SMOTE_" + ovr.classes_[i])
     print("[RANDOM FOREST WITH SMOTE", i, "] Found ", len(feature_names_RFC_sin), " important features")
     print(feature_names_RFC_sin)

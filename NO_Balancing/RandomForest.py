@@ -7,7 +7,7 @@ from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, datafram
 from DatasetPrep.Scaling import scale
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from ModelEvaluation.Performance import unbalanced_model_predict, select_features_from_model, plot_feature_importance
-from ModelEvaluation.SaveLoad import save_estimator
+from ModelEvaluation.SaveLoad import save_estimator, load_estimator
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
 # Read & Check dataset
@@ -30,6 +30,7 @@ print("[INFO] Finished splitting dataset...")
 
 # _____________________________________________________________________RANDOM FOREST__________________________________________________________________________________#
 # Grid Search
+"""
 print("[RANDOM FOREST] Searching best params with GridSearchCV")
 rdf_model = RandomForestClassifier(random_state=12345)
 param_grid = {
@@ -45,23 +46,24 @@ rdf_gridcv.fit(data_train, labels_train)
 
 print(f"[RANDOM FOREST] Best random forest with params: {rdf_gridcv.best_params_} and score: {rdf_gridcv.best_score_:.3f}")
 # save model
-save_estimator(rdf_gridcv.best_estimator_, "RF_NB.joblib")
+"""
+rdf = load_estimator("RF_NB.joblib")
 print("[RANDOM FOREST] RF_NB model saved")
 
 # predict
-score = unbalanced_model_predict(model=rdf_gridcv.best_estimator_, name="RF_NB", test_data=data_test, test_labels=labels_test)
+score = unbalanced_model_predict(model=rdf, name="RF_NB", test_data=data_test, test_labels=labels_test)
 print("[RANDOM_FOREST] Balanced accuracy score:", score)
 
 # plot feature importances for the best model
-plot_feature_importance(estimator=rdf_gridcv.best_estimator_, name="RF_NB", selected_features=selected_features)
+plot_feature_importance(estimator=rdf, name="RF_NB", selected_features=selected_features)
 
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf_gridcv.best_estimator_, 0.0004, True, selected_features, data_train, data_test, "RF_NB")
+imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf, 0.008, True, selected_features, data_train, data_test, "RF_NB")
 print("[RFC] Found ", len(feature_names_RFC), " important features: ")
 print(feature_names_RFC)
 
 # _____________________________________________________________________RETRAIN RANDOMFOREST______________________________________________________________________________#
-retrained_rdf = RandomForestClassifier(**rdf_gridcv.best_estimator_.get_params())
+retrained_rdf = RandomForestClassifier(**rdf.get_params())
 retrained_results = retrained_rdf.fit(imp_features, labels_train)
 
 # save model
@@ -74,7 +76,7 @@ print("[RANDOM_FOREST RETRAINED] Balanced accuracy score:", score)
 
 # _____________________________________________________________________ONEVSREST-RANDOMFOREST___________________________________________
 # select best feature per class
-model_rdf = RandomForestClassifier(**rdf_gridcv.best_estimator_.get_params())
+model_rdf = RandomForestClassifier(**rdf.get_params())
 ovr = OneVsRestClassifier(estimator=model_rdf, n_jobs=-1)
 results = ovr.fit(data_train, labels_train)
 
@@ -87,6 +89,6 @@ for i in range(0, 5):
     # plot feature importances for the best model
     plot_feature_importance(estimator=results.estimators_[i], name="RF_OVR_NB" + str(i), selected_features=selected_features)
     # get important features
-    imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test, "RF_OVR_NB" + str(i))
+    imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.008, True, selected_features, data_train, data_test, "RF_OVR_NB_" + ovr.classes_[i])
     print("[RANDOM FOREST", i, "] Found ", len(feature_names_RFC_sin), " important features")
     print(feature_names_RFC_sin)
