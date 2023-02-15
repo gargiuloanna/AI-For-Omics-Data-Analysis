@@ -56,7 +56,7 @@ print("[RANDOM_FOREST] Balanced accuracy score:", score)
 plot_feature_importance(estimator=rdf_gridcv.best_estimator_, name="RF_NB", selected_features=selected_features)
 
 # select important features based on threshold
-imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf_gridcv.best_estimator_, 0.0004, True, selected_features, data_train, data_test)
+imp_features, imp_features_test, feature_names_RFC = select_features_from_model(rdf_gridcv.best_estimator_, 0.0004, True, selected_features, data_train, data_test, "RF_NB")
 print("[RFC] Found ", len(feature_names_RFC), " important features: ")
 print(feature_names_RFC)
 
@@ -87,6 +87,6 @@ for i in range(0, 5):
     # plot feature importances for the best model
     plot_feature_importance(estimator=results.estimators_[i], name="RF_OVR_NB" + str(i), selected_features=selected_features)
     # get important features
-    imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test)
+    imp_features_train_sin, imp_features_test_sin, feature_names_RFC_sin = select_features_from_model(results.estimators_[i], 0.0004, True, selected_features, data_train, data_test, "RF_OVR_NB" + str(i))
     print("[RANDOM FOREST", i, "] Found ", len(feature_names_RFC_sin), " important features")
     print(feature_names_RFC_sin)

@@ -26,21 +26,13 @@ def balanced_model_predict(model, name, test_data, test_labels):
     plt.savefig(directory + "/Plots/" + name + "_CONFUSION.png")
     return score
 
-
-def select_features_from_model(model, threshold, prefit, selected_features, train=None, test=None):
+#Random Forest
+def select_features_from_model(model, threshold, prefit, selected_features, train, test, name):
     sfm = SelectFromModel(estimator=model, threshold=threshold, prefit=prefit)
     imp_features = sfm.transform(train)
     imp_features_test = sfm.transform(test)
-    feature_names = sfm.get_feature_names_out(selected_features)
+    feature_names = get_feature_importance(model, selected_features, threshold, name)
     return imp_features, imp_features_test, feature_names
-
-
-def plot_feature_importance(estimator, name, selected_features):
-    skplt.estimators.plot_feature_importances(estimator, feature_names=selected_features, max_num_features=300, figsize=(100, 100))
-    filename = os.path.join(directory + "/Plots/", name + "_PLOT.png")
-    plt.savefig(filename)
-    plt.show()
-
 
 def get_feature_importance(estimator, selected_features, threshold, name):
     importances = estimator.feature_importances_
@@ -50,7 +42,13 @@ def get_feature_importance(estimator, selected_features, threshold, name):
     plt.savefig(directory + "/Plots/" + name + ".png")
     return feature_names
 
+def plot_feature_importance(estimator, name, selected_features):
+    skplt.estimators.plot_feature_importances(estimator, feature_names=selected_features, max_num_features=300, figsize=(100, 100))
+    filename = os.path.join(directory + "/Plots/", name + "_PLOT.png")
+    plt.savefig(filename)
+    plt.show()
 
+#Clustering
 def plot_clustering(clusterer, cluster_labels, n_clusters, df):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.set_size_inches(18, 7)
@@ -133,19 +131,6 @@ def plot_clustering(clusterer, cluster_labels, n_clusters, df):
     plt.savefig(directory + "/Plots/" + str(clusterer) + ".png")
     plt.show()
 
-
-def get_features_name_RFE(support, selected_features):
-    feature_names_SVM_RFE = []
-    for i in range(len(support)):
-        if support[i] == True:
-            feature_names_SVM_RFE.append(selected_features[i])
-    return feature_names_SVM_RFE
-
-def get_importances_sorted(svm):
-    abs_coef = abs(svm.coef_)
-    indices = np.argsort(abs_coef)[::-1]
-    return indices
-
 def plot_dendrogram(model, **kwargs):
     # Create linkage matrix and then plot the dendrogram
 
@@ -177,6 +162,21 @@ def get_features_PCA(selected_features, component, name):
     most_important_names = np.array(selected_features)[most_important][:20]
     plot_barh(most_important_names, np.sort(component)[::-1], name)
 
+#SVM
+def get_features_name_RFE(support, selected_features):
+    feature_names_SVM_RFE = []
+    for i in range(len(support)):
+        if support[i] == True:
+            feature_names_SVM_RFE.append(selected_features[i])
+    return feature_names_SVM_RFE
+
+def get_importances_sorted(svm):
+    abs_coef = abs(svm.coef_)
+    indices = np.argsort(abs_coef)[::-1]
+    return indices
+
+
+#BAR PLOT
 def plot_barh(x, y, name):
     zipped_feats = zip(x, y)
     zipped_feats = sorted(zipped_feats, key=lambda x: x[1])
