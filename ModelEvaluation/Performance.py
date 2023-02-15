@@ -163,16 +163,13 @@ def get_features_PCA(selected_features, component, name):
 
 #SVM
 def get_features_importances_SVMRFE(pipe, selected_features, name):
-    support = pipe.named_steps['rfe'].support_
     svm = pipe.named_steps['svm_model']
-    feature_names_SVM_RFE = []
-    for i in range(len(support)):
-        if support[i] == True:
-            feature_names_SVM_RFE.append(selected_features[i])
     importances = get_importances_sorted(svm)
     print("[SVM_RFE] Most important features")
     for i in range(5):
-        plot_barh(feature_names_SVM_RFE, importances[i][:20], name+'_'+svm.classes_[i])
+        indices = np.argsort(svm.coef_[i])[::-1][:20]
+        feature_names = np.array(selected_features)[indices]
+        plot_barh(feature_names, importances[i][:20], name+'_'+svm.classes_[i])
 
 
 def get_importances_sorted(svm):
