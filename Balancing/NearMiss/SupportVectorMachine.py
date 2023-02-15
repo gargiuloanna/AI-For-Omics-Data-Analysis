@@ -5,11 +5,10 @@ from sklearn.feature_selection import RFECV
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
-
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, remove_outliers, remove_correlated_features
 from DatasetPrep.Scaling import scale
 from DatasetPrep.VariablePreSelection import feature_pre_selection
-from ModelEvaluation.Performance import balanced_model_predict, get_features_name_RFE
+from ModelEvaluation.Performance import balanced_model_predict, get_features_importances_SVMRFE
 from ModelEvaluation.SaveLoad import save_estimator
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
@@ -17,7 +16,7 @@ from ModelEvaluation.SaveLoad import save_estimator
 data, labels = read_dataset()
 check_dataset(data, labels)
 data, labels = remove_outliers(data, labels)
-nearmiss = NearMiss(version=2, n_jobs=-1, random_state=12345)
+nearmiss = NearMiss(version=2, n_jobs=-1)
 data_resampled_np, labels_resampled_np = nearmiss.fit_resample(data, labels)
 print("Total number of samples after nearmiss: ", len(data_resampled_np), ". Total number of labels ", len(labels_resampled_np))
 # Scale the samples
@@ -57,13 +56,6 @@ print("[SVM_RFE WITH NEARMISS] SVM_RFE_NEARMISS model saved")
 score = balanced_model_predict(model=pipe, name="SVM_RFE_NEARMISS", test_data=data_test, test_labels=labels_test)
 print("[SVM_RFE WITH NEARMISS] Balanced accuracy score:", score)
 
-# get BEST features NAMES
-feature_names_SVM_RFE = get_features_name_RFE(support=pipe.named_steps['rfe'].support_, selected_features=selected_features)
-
 # get important features per class
-c = pipe.named_steps['svm_model'].coef_
-print("[SVM_RFE WITH NEARMISS]")
-for i in range(5):
-    print('Important Features for class ' + pipe.named_steps['svm_model'].classes_[i])
-    print(feature_names_SVM_RFE[c[i].argmax()])
-    print(feature_names_SVM_RFE[c[i].argmin()])
+get_features_importances_SVMRFE(pipe=pipe, selected_features=selected_features, name="SVM_RFE_NEARMISS")
+
