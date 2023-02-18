@@ -10,7 +10,6 @@ from scipy.cluster.hierarchy import dendrogram
 
 directory = "G:/.shortcut-targets-by-id/1H3W_wvBnmy-GZ2KOCF1s1LkjJHPsTlOX/AI-Project"
 
-
 def unbalanced_model_predict(model, name, test_data, test_labels):
     lab_pred = model.predict(test_data)
     score = balanced_accuracy_score(test_labels, lab_pred)
@@ -25,7 +24,9 @@ def balanced_model_predict(model, name, test_data, test_labels):
     score = accuracy_score(test_labels, lab_pred)
     skplt_m.plot_confusion_matrix(test_labels, lab_pred)
     plt.savefig(directory + "/Plots/" + name + "_CONFUSION.png")
+    plt.show()
     return score
+
 
 #Random Forest
 def select_features_from_model(model, threshold, prefit, selected_features, train, test, name):
@@ -35,6 +36,7 @@ def select_features_from_model(model, threshold, prefit, selected_features, trai
     feature_names = get_feature_importance(model, selected_features, imp_features.shape[1], name)
     return imp_features, imp_features_test, feature_names
 
+
 def get_feature_importance(estimator, selected_features, threshold, name):
     importances = estimator.feature_importances_
     indices = np.argsort(importances)[::-1][:threshold]
@@ -42,6 +44,7 @@ def get_feature_importance(estimator, selected_features, threshold, name):
     plot_barh(feature_names, np.sort(importances)[::-1], name)
     plt.savefig(directory + "/Plots/" + name + ".png")
     return feature_names
+
 
 def plot_feature_importance(estimator, name, selected_features):
     skplt.estimators.plot_feature_importances(estimator, feature_names=selected_features, max_num_features=300, figsize=(100, 100))
@@ -161,21 +164,16 @@ def get_features_PCA(selected_features, component, name):
     most_important_names = np.array(selected_features)[most_important][:20]
     plot_barh(most_important_names, np.sort(component)[::-1], name)
 
+
 #SVM
-def get_features_importances_SVMRFE(pipe, selected_features, name):
-    svm = pipe.named_steps['svm_model']
-    importances = get_importances_sorted(svm)
-    print("[SVM_RFE] Most important features")
+def get_features_importances_SVM(svm, selected_features, name):
+    print("[SVM] Most important features")
+
     for i in range(5):
+        importances = np.sort(abs(svm.coef_[i]))[::-1]
         indices = np.argsort(svm.coef_[i])[::-1][:20]
         feature_names = np.array(selected_features)[indices]
-        plot_barh(feature_names, importances[i][:20], name+'_'+svm.classes_[i])
-
-
-def get_importances_sorted(svm):
-    abs_coef = abs(svm.coef_)
-    importances = np.sort(abs_coef)[::-1]
-    return importances
+        plot_barh(feature_names, importances, name+'_'+svm.classes_[i])
 
 
 #BAR PLOT
@@ -183,6 +181,8 @@ def plot_barh(x, y, name):
     zipped_feats = zip(x, y)
     zipped_feats = sorted(zipped_feats, key=lambda x: x[1])
     features, importances = zip(*zipped_feats)
+    print(features)
+    print(importances)
     plt.figure(figsize=(10, 10))
     plt.title('Feature Importances' +  name)
     plt.barh(range(len(features)), importances, height=0.6, color='#D8BFD8', align='center')
