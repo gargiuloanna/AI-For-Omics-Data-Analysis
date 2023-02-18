@@ -2,19 +2,23 @@
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-
+from sklearn.preprocessing import MaxAbsScaler
 from DatasetPrep.DatasetPreparation import read_dataset, check_dataset, dataframe_to_numpy, remove_outliers
+from DatasetPrep.Scaling import scale
 from DatasetPrep.VariablePreSelection import feature_pre_selection
 from ModelEvaluation.Performance import plot_clustering, get_features_PCA
 from ModelEvaluation.SaveLoad import save_estimator
 
 # _____________________________________________________________________READ DATASET_____________________________________________________________________#
-
 # Read & Check dataset
 data, labels = read_dataset()
 check_dataset(data, labels)
 data, labels = remove_outliers(data, labels)
 data_np, labels_np = dataframe_to_numpy(data, labels)
+# Scale the samples
+#scale = MaxAbsScaler()
+#data_sc = scale.fit_transform(data_np)
+#data_sc = scale(data_np)
 # Feature Selection
 data_np, selected_features = feature_pre_selection(data, data_np)
 
@@ -27,8 +31,6 @@ variance = pca.explained_variance_ratio_ * 100
 
 for v in variance:
     print(f"% Variance Ratio per PC ", v)
-
-
 
 codes = {'BRCA': 'red', 'COAD': 'green', 'LUAD': 'blue', 'PRAD': 'violet', 'KIRC': 'orange'}
 df_pd = pd.DataFrame(data=df, columns=['PC 1', 'PC 2', 'PC 3', 'PC 4', 'PC 5', 'PC 6', 'PC 7', 'PC 8', 'PC 9', 'PC 10'])
